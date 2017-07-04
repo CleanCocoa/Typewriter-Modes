@@ -17,13 +17,18 @@ class ViewController: NSViewController, NSTextViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
-        textView.textContainerInset = NSSize(width: 0, height: scrollView.bounds.height)
+        textView.textContainerInset = NSSize(width: 0, height: scrollView.bounds.height / 2)
     }
 
     func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
         let rect = self.boundingRect(selectedRange: affectedCharRange)
         let halfScreen = scrollView.bounds.height / 2
-        textView.scroll(rect.origin.applying(CGAffineTransform(translationX: 0, y: +halfScreen)))
+        var bottom = rect.origin
+//            .applying(CGAffineTransform(translationX: 0, y: -halfScreen)) // not needed with container insets?
+        if replacementString == "\n" {
+            bottom.y += textView.layoutManager!.defaultLineHeight(for: textView.font!)
+        }
+        textView.scroll(bottom)
         return true
     }
 
@@ -36,3 +41,16 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
 
 }
+
+extension NSTextView {
+
+    var lineHeight: CGFloat {
+        guard let font = self.font,
+            let layoutManager = self.layoutManager
+            else { return 0 }
+
+        return layoutManager.defaultLineHeight(for: font)
+    }
+}
+
+class TypewriterTextView: NSTextView { }
