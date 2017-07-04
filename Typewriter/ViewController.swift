@@ -21,25 +21,44 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
 
     func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
-        let rect = self.boundingRect(selectedRange: affectedCharRange)
-        let halfScreen = scrollView.bounds.height / 2
-        var bottom = rect.origin
+
+        guard let text = replacementString else { return true }
+
+        let rect = self.boundingRect(selectedRange: affectedCharRange, text: text)
+        let bottom = rect.origin
 //            .applying(CGAffineTransform(translationX: 0, y: -halfScreen)) // not needed with container insets?
-        if replacementString == "\n" {
-            bottom.y += textView.layoutManager!.defaultLineHeight(for: textView.font!)
-        }
         textView.scroll(bottom)
         return true
     }
 
-    func boundingRect(selectedRange range: NSRange) -> NSRect {
-        guard let layoutManager = textView.layoutManager,
-            let textContainer = textView.textContainer
+    func boundingRect(selectedRange range: NSRange, text: String) -> NSRect {
+
+        guard
+            let baseTextContainer = textView.textContainer,
+            let baseTextStorage = textView.textStorage
             else { preconditionFailure() }
-        let activeRange = layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(containerSize: baseTextContainer.containerSize)
+        layoutManager.addTextContainer(textContainer)
+        defer { layoutManager.removeTextContainer(at: 0) }
+        let textStorage = NSTextStorage(attributedString: baseTextStorage)
+        textStorage.addLayoutManager(layoutManager)
+        defer { textStorage.removeLayoutManager(layoutManager) }
+
+        textStorage.replaceCharacters(in: range, with: text)
+        let length = text.isEmpty ? 0 : range.length + text.nsLength
+        let changeRange = NSRange(location: range.location + length, length: 0)
+        let activeRange = layoutManager.glyphRange(forCharacterRange: changeRange, actualCharacterRange: nil)
         return layoutManager.boundingRect(forGlyphRange: activeRange, in: textContainer)
     }
 
+}
+
+extension String {
+    var nsLength: Int {
+        return (self as NSString).length
+    }
 }
 
 extension NSTextView {
