@@ -18,6 +18,17 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
     var highlighter: HighlightView!
 
+    var isInTypewriterMode = false {
+        didSet {
+            if isInTypewriterMode {
+                highlighter.isHidden = false
+                alignScrollingToInsertionPoint()
+            } else {
+                highlighter.isHidden = true
+            }
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -32,9 +43,7 @@ class ViewController: NSViewController, NSTextStorageDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(scrollViewDidScroll(_:)), name: .NSViewBoundsDidChange, object: scrollView.contentView)
 
         scrollView.addObserver(self, forKeyPath: "frame", options: [.new, .initial], context: &scrollViewContext)
-
     }
-
 
     deinit {
         scrollView.removeObserver(self, forKeyPath: "frame")
@@ -62,8 +71,29 @@ class ViewController: NSViewController, NSTextStorageDelegate {
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
 
         guard let layoutManager = textView.layoutManager else { return }
+        guard isInTypewriterMode else { return }
 
-        print(">")
+        alignScrolling(editedRange: editedRange, changeInLength: delta, textStorage: textStorage, layoutManager: layoutManager)
+    }
+
+    fileprivate func alignScrollingToInsertionPoint() {
+
+        guard let textStorage = textView.textStorage else { return }
+        guard let layoutManager = textView.layoutManager else { return }
+
+        alignScrolling(
+            editedRange: textView.selectedRange(),
+            textStorage: textStorage,
+            layoutManager: layoutManager)
+    }
+
+    fileprivate func alignScrolling(
+        editedRange: NSRange,
+        changeInLength delta: Int = 0,
+        textStorage: NSTextStorage,
+        layoutManager: NSLayoutManager) {
+
+        guard isInTypewriterMode else { return }
 
         let lineRect: NSRect = {
 
@@ -81,7 +111,8 @@ class ViewController: NSViewController, NSTextStorageDelegate {
             let offset: CGFloat = {
                 if editedRange.length == 1 && delta != -1,
                     (textStorage.string as NSString).substring(with: editedRange).hasSuffix("\n") {
-                    // Jump to the line after the newline character
+                    // Jump to the line after the newline character which is not
+                    // known to the layout manager, yet.
                     return lineRect.height
                 }
                 return 0
@@ -93,7 +124,12 @@ class ViewController: NSViewController, NSTextStorageDelegate {
         highlighter.frame = highlighter.superview!
             .convert(lineRect, from: textView)
             .offsetBy(dx: 0, dy: textView.textContainerInset.height)
-        textView.scroll(lineRect.origin)    }
+        textView.scroll(lineRect.origin)
+    }
+
+    @IBAction func toggleTypewriterMode(_ sender: Any?) {
+        isInTypewriterMode = !isInTypewriterMode
+    }
 }
 
 class TypewriterTextView: NSTextView {
