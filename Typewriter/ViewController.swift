@@ -40,8 +40,6 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         textStorage.delegate = self
         textView.layoutManager?.replaceTextStorage(textStorage)
 
-        textView.textContainerInset = NSSize(width: 0, height: scrollView.frame.height / 2)
-
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
 
         scrollView.addObserver(self, forKeyPath: "frame", options: [.new, .initial], context: &scrollViewContext)
@@ -62,7 +60,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     }
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
-        textView.textContainerInset = NSSize(width: 0, height: scrollView.bounds.height / 2)
+        textView.scrollViewDidResize(scrollView)
     }
 
     // MARK: - Typewriter Scrolling
