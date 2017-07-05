@@ -58,8 +58,8 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
 
-        guard let layoutManager = textView.layoutManager else { return }
         guard isInTypewriterMode else { return }
+        guard let layoutManager = textView.layoutManager else { return }
 
         alignScrolling(editedRange: editedRange, changeInLength: delta, textStorage: textStorage, layoutManager: layoutManager)
     }
@@ -90,6 +90,12 @@ class ViewController: NSViewController, NSTextStorageDelegate {
                 // ... but not through deleting backwards to the end of a line
                 && delta != -1
 
+        let preparation = TypewriterScrollPreparation(
+            textView: textView,
+            textStorage: textStorage,
+            editedRange: editedRange,
+            didTypeNewline: didTypeNewline)
+
         let lineRect: NSRect = {
 
             let lineRect: NSRect = {
@@ -111,14 +117,11 @@ class ViewController: NSViewController, NSTextStorageDelegate {
                 }
                 return 0
             }()
-            
+
             return lineRect.offsetBy(dx: 0, dy: offset)
         }()
 
-        textView.moveHighlight(rect: textView.superview!
-            .convert(lineRect, from: textView)
-            .offsetBy(dx: 0, dy: textView.textContainerInset.height))
-        textView.scroll(lineRect.origin)
+        preparation.scroll(lineRect: lineRect)
     }
 
     @IBAction func toggleTypewriterMode(_ sender: Any?) {
@@ -173,4 +176,3 @@ struct TypewriterScrollPreparation {
             .performScroll()
     }
 }
-
