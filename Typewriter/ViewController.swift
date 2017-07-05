@@ -31,6 +31,9 @@ class ViewController: NSViewController, NSTextStorageDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let textStorage = TypewriterTextStorage()
+        textView.layoutManager?.replaceTextStorage(textStorage)
+
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
         textView.textContainerInset = NSSize(width: 0, height: scrollView.frame.height / 2)
         textView.textStorage?.delegate = self
@@ -59,6 +62,7 @@ class ViewController: NSViewController, NSTextStorageDelegate {
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
 
         guard isInTypewriterMode else { return }
+        guard let textStorage = textStorage as? TypewriterTextStorage else { return }
         guard let layoutManager = textView.layoutManager else { return }
 
         alignScrolling(editedRange: editedRange, changeInLength: delta, textStorage: textStorage, layoutManager: layoutManager)
@@ -66,7 +70,7 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
     fileprivate func alignScrollingToInsertionPoint() {
 
-        guard let textStorage = textView.textStorage else { return }
+        guard let textStorage = textView.textStorage as? TypewriterTextStorage else { return }
         guard let layoutManager = textView.layoutManager else { return }
 
         alignScrolling(
@@ -78,50 +82,16 @@ class ViewController: NSViewController, NSTextStorageDelegate {
     fileprivate func alignScrolling(
         editedRange: NSRange,
         changeInLength delta: Int = 0,
-        textStorage: NSTextStorage,
+        textStorage: TypewriterTextStorage,
         layoutManager: NSLayoutManager) {
 
         guard isInTypewriterMode else { return }
 
-        let didTypeNewline: Bool =
-            // affected range is a newline character
-            editedRange.length == 1
-                && (textStorage.string as NSString).substring(with: editedRange).hasSuffix("\n")
-                // ... but not through deleting backwards to the end of a line
-                && delta != -1
-
         let preparation = TypewriterScrollPreparation(
             textView: textView,
-            textStorage: textStorage,
-            editedRange: editedRange,
-            didTypeNewline: didTypeNewline)
+            layoutManager: layoutManager)
 
-        let lineRect: NSRect = {
-
-            let lineRect: NSRect = {
-                if editedRange.location >= layoutManager.numberOfGlyphs,
-                    layoutManager.extraLineFragmentRect != NSRect.zero {
-                    return layoutManager.extraLineFragmentRect
-                }
-
-                let insertionPointGlyphIndex = min(editedRange.location, layoutManager.numberOfGlyphs - 1)
-
-                return layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
-            }()
-
-            let offset: CGFloat = {
-                if didTypeNewline {
-                    // Jump to the line after the newline character which is not
-                    // known to the layout manager, yet.
-                    return lineRect.height
-                }
-                return 0
-            }()
-
-            return lineRect.offsetBy(dx: 0, dy: offset)
-        }()
-
-        preparation.scroll(lineRect: lineRect)
+        textStorage.prepareScroll(preparation)
     }
 
     @IBAction func toggleTypewriterMode(_ sender: Any?) {
@@ -153,7 +123,8 @@ class TypewriterTextView: NSTextView {
     }
 }
 
-struct TypewriterScroll {
+struct TypewriterScrollCommand {
+
     let textView: TypewriterTextView
     let lineRect: NSRect
 
@@ -165,14 +136,75 @@ struct TypewriterScroll {
         textView.scroll(lineRect.origin)
     }
 }
-struct TypewriterScrollPreparation {
-    let textView: TypewriterTextView
-    let textStorage: NSTextStorage
-    let editedRange: NSRange
-    let didTypeNewline: Bool
 
-    func scroll(lineRect: NSRect) {
-        TypewriterScroll(textView: textView, lineRect: lineRect)
-            .performScroll()
+struct TypewriterScrollPreparation {
+
+    let textView: TypewriterTextView
+    let layoutManager: NSLayoutManager
+
+    func lineRect() -> NSRect {
+
+        let location = textView.selectedRange().location
+
+        if location >= layoutManager.numberOfGlyphs,
+            layoutManager.extraLineFragmentRect != NSRect.zero {
+            return layoutManager.extraLineFragmentRect
+        }
+
+        let insertionPointGlyphIndex = min(location, layoutManager.numberOfGlyphs - 1)
+
+        return layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
+    }
+
+    func scrollCommand() -> TypewriterScrollCommand {
+
+        return TypewriterScrollCommand(
+            textView: textView,
+            lineRect: self.lineRect())
+    }
+}
+
+class CustomTextStorage: NSTextStorage {
+
+    internal let content = NSMutableAttributedString()
+
+    public override var string: String { return content.string }
+
+    public override func attributes(at location: Int, effectiveRange range: NSRangePointer?) -> [String : Any] {
+        return content.attributes(at: location, effectiveRange: range)
+    }
+
+    public override func replaceCharacters(in range: NSRange, with str: String) {
+        content.replaceCharacters(in: range, with: str)
+        self.edited(.editedCharacters, range: range, changeInLength: str.nsLength - range.length)
+    }
+
+    public override func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
+        content.setAttributes(attrs, range: range)
+        self.edited(.editedAttributes, range: range, changeInLength: 0)
+    }
+}
+
+extension String {
+    var nsLength: Int {
+        return (self as NSString).length
+    }
+}
+
+class TypewriterTextStorage: CustomTextStorage {
+
+    private(set) var pendingPreparation: TypewriterScrollPreparation?
+
+    func prepareScroll(_ preparation: TypewriterScrollPreparation) {
+        self.pendingPreparation = preparation
+    }
+
+    override func endEditing() {
+        super.endEditing()
+
+        guard let preparation = self.pendingPreparation else { return }
+        self.pendingPreparation = nil
+
+        preparation.scrollCommand().performScroll()
     }
 }
