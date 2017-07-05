@@ -19,9 +19,11 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     var isInTypewriterMode = false {
         didSet {
             if isInTypewriterMode {
+                textView.lockTypewriterDistance()
                 alignScrollingToInsertionPoint()
                 textView.needsDisplay = true
             } else {
+                textView.unlockTypewriterDistance()
                 textView.hideHighlight()
                 textView.needsDisplay = true
             }
