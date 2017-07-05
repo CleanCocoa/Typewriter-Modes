@@ -37,8 +37,24 @@ class TypewriterTextStorage: CustomTextStorageBase {
 
     weak var typewriterDelegate: TypewriterTextStorageDelegate?
 
+    private var isBlockEditing = false
+    private var wasBlockEditing = false
+    override func beginEditing() {
+        super.beginEditing()
+        isBlockEditing = true
+    }
+
+    override func processEditing() {
+        super.processEditing()
+
+        if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self) }
+        wasBlockEditing = false
+    }
+
     override func endEditing() {
         super.endEditing()
+        wasBlockEditing = isBlockEditing
+        isBlockEditing = false
         typewriterDelegate?.textStorageDidEndEditing(self)
     }
 }
