@@ -136,6 +136,7 @@ class TypewriterTextView: NSTextView {
 
         guard isDrawingTypingHighlight else { return }
 
+        // TODO: highlight is not production-ready: resizing the container does not move the highlight and pasting strings spanning multiple line fragments, then typing a character shows 2 highlighters
         NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
         NSRectFill(highlight)
     }
@@ -148,3 +149,28 @@ class TypewriterTextView: NSTextView {
         highlight = rect
     }
 }
+
+struct TypewriterScroll {
+    let textView: TypewriterTextView
+    let lineRect: NSRect
+
+    func performScroll() {
+
+        textView.moveHighlight(rect: textView.superview!
+            .convert(lineRect, from: textView)
+            .offsetBy(dx: 0, dy: textView.textContainerInset.height))
+        textView.scroll(lineRect.origin)
+    }
+}
+struct TypewriterScrollPreparation {
+    let textView: TypewriterTextView
+    let textStorage: NSTextStorage
+    let editedRange: NSRange
+    let didTypeNewline: Bool
+
+    func scroll(lineRect: NSRect) {
+        TypewriterScroll(textView: textView, lineRect: lineRect)
+            .performScroll()
+    }
+}
+
