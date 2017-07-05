@@ -12,7 +12,7 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var clipView: NSClipView!
-    @IBOutlet var textView: NSTextView!
+    @IBOutlet var textView: TypewriterTextView!
 
     var highlighter: HighlightView!
 
@@ -23,7 +23,7 @@ class ViewController: NSViewController, NSTextStorageDelegate {
         textView.superview!.addSubview(highlighter)
 
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
-        textView.textContainerInset = NSSize(width: 0, height: scrollView.bounds.height / 2)
+        textView.textContainerInset = NSSize(width: 0, height: scrollView.frame.height / 2)
         textView.textStorage?.delegate = self
 
         scrollView.contentView.postsBoundsChangedNotifications = true
@@ -41,33 +41,40 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
         print(">")
 
-        let insertionPointGlyphIndex: Int = {
-            // Jump to the character after the newline, not the newline itself
-            if editedRange.length == 1,
-                (textStorage.string as NSString).substring(with: editedRange).hasSuffix("\n") {
-                return min(
-                    editedRange.location + 1,
-                    layoutManager.numberOfGlyphs)
+        let lineRect: NSRect = {
+
+            var insertionPointGlyphIndex = editedRange.location
+
+            if insertionPointGlyphIndex >= layoutManager.numberOfGlyphs,
+                layoutManager.extraLineFragmentRect != NSRect.zero {
+                return layoutManager.extraLineFragmentRect
             }
 
-            // The old known location in both the store and layout manager
-            return editedRange.location
-        }()
+            insertionPointGlyphIndex = min(insertionPointGlyphIndex, layoutManager.numberOfGlyphs - 1)
 
-        // Layout manager did not process the changes, so the glyph index may not be right
-        let lineRect = layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
+            let lineRect = layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
+
+            let offset: CGFloat = {
+                if editedRange.length == 1 && delta != -1,
+                    (textStorage.string as NSString).substring(with: editedRange).hasSuffix("\n") {
+                    // Jump to the line after the newline character
+                    return lineRect.height
+                }
+                return 0
+            }()
+
+            return lineRect.offsetBy(dx: 0, dy: offset)
+        }()
 
         highlighter.frame = highlighter.superview!
             .convert(lineRect, from: textView)
             .offsetBy(dx: 0, dy: textView.textContainerInset.height)
-        textView.scroll(lineRect.origin)//.applying(.init(translationX: 0, y: lineRect.size.height)))
-    }
+        textView.scroll(lineRect.origin)    }
 }
 
 class TypewriterTextView: NSTextView {
     override func scrollToVisible(_ rect: NSRect) -> Bool {
-//        self.enclosingScrollView?.contentView.scroll(to: rect.origin)
-        return false//super.scrollToVisible(rect)
+        return super.scrollToVisible(rect)
     }
 }
 
