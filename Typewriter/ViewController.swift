@@ -10,7 +10,7 @@ import Cocoa
 
 var scrollViewContext: Void?
 
-class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextStorageDelegate {
+class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextStorageDelegate, TypewriterLayoutManagerDelegate, NSTextViewDelegate {
 
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var clipView: NSClipView!
@@ -34,9 +34,33 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         isInTypewriterMode = !isInTypewriterMode
     }
 
+    private var isProcessingEdit = false
+
+    func layoutManagerWillProcessEditing(_ layoutManager: TypewriterLayoutManager) {
+        isProcessingEdit = true
+    }
+
+    func layoutManagerDidProcessEditing(_ layoutManager: TypewriterLayoutManager) {
+        isProcessingEdit = false
+    }
+
+    func textViewDidChangeSelection(_ notification: Notification) {
+
+        guard isInTypewriterMode else { return }
+        guard let textView = notification.object as? TypewriterTextView else { return }
+        guard !isProcessingEdit else { return }
+
+        isProcessingEdit = true
+//        textView.lockTypewriterDistance()
+        isProcessingEdit = false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let layoutManager = TypewriterLayoutManager()
+        layoutManager.typewriterDelegate = self
+        textView.textContainer?.replaceLayoutManager(layoutManager)
         let textStorage = TypewriterTextStorage()
         textStorage.typewriterDelegate = self
         textStorage.delegate = self
@@ -93,8 +117,6 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         textView: TypewriterTextView,
         layoutManager: NSLayoutManager) {
 
-        guard isInTypewriterMode else { return }
-
         let preparation = TypewriterScrollPreparation(
             textView: textView,
             layoutManager: layoutManager)
@@ -121,6 +143,23 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         self.pendingPreparation = nil
 
         preparation.scrollCommand().performScroll()
+    }
+}
+
+protocol TypewriterLayoutManagerDelegate: class {
+    func layoutManagerWillProcessEditing(_ layoutManager: TypewriterLayoutManager)
+    func layoutManagerDidProcessEditing(_ layoutManager: TypewriterLayoutManager)
+}
+
+class TypewriterLayoutManager: NSLayoutManager {
+
+    weak var typewriterDelegate: TypewriterLayoutManagerDelegate?
+
+    override func processEditing(for textStorage: NSTextStorage, edited editMask: NSTextStorageEditActions, range newCharRange: NSRange, changeInLength delta: Int, invalidatedRange invalidatedCharRange: NSRange) {
+
+        typewriterDelegate?.layoutManagerWillProcessEditing(self)
+        super.processEditing(for: textStorage, edited: editMask, range: newCharRange, changeInLength: delta, invalidatedRange: invalidatedCharRange)
+        typewriterDelegate?.layoutManagerDidProcessEditing(self)
     }
 }
 
