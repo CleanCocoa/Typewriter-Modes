@@ -81,29 +81,37 @@ class ViewController: NSViewController, NSTextStorageDelegate {
         textStorage: NSTextStorage,
         layoutManager: NSLayoutManager) {
 
+        guard isInTypewriterMode else { return }
+
+        let didTypeNewline: Bool =
+            // affected range is a newline character
+            editedRange.length == 1
+                && (textStorage.string as NSString).substring(with: editedRange).hasSuffix("\n")
+                // ... but not through deleting backwards to the end of a line
+                && delta != -1
+
         let lineRect: NSRect = {
 
-            var insertionPointGlyphIndex = editedRange.location
+            let lineRect: NSRect = {
+                if editedRange.location >= layoutManager.numberOfGlyphs,
+                    layoutManager.extraLineFragmentRect != NSRect.zero {
+                    return layoutManager.extraLineFragmentRect
+                }
 
-            if insertionPointGlyphIndex >= layoutManager.numberOfGlyphs,
-                layoutManager.extraLineFragmentRect != NSRect.zero {
-                return layoutManager.extraLineFragmentRect
-            }
+                let insertionPointGlyphIndex = min(editedRange.location, layoutManager.numberOfGlyphs - 1)
 
-            insertionPointGlyphIndex = min(insertionPointGlyphIndex, layoutManager.numberOfGlyphs - 1)
-
-            let lineRect = layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
+                return layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
+            }()
 
             let offset: CGFloat = {
-                if editedRange.length == 1 && delta != -1,
-                    (textStorage.string as NSString).substring(with: editedRange).hasSuffix("\n") {
+                if didTypeNewline {
                     // Jump to the line after the newline character which is not
                     // known to the layout manager, yet.
                     return lineRect.height
                 }
                 return 0
             }()
-
+            
             return lineRect.offsetBy(dx: 0, dy: offset)
         }()
 
