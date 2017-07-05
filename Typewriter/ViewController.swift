@@ -8,6 +8,8 @@
 
 import Cocoa
 
+var scrollViewContext: Void?
+
 class ViewController: NSViewController, NSTextStorageDelegate {
 
     @IBOutlet weak var scrollView: NSScrollView!
@@ -28,6 +30,28 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
         scrollView.contentView.postsBoundsChangedNotifications = true
         NotificationCenter.default.addObserver(self, selector: #selector(scrollViewDidScroll(_:)), name: .NSViewBoundsDidChange, object: scrollView.contentView)
+
+        scrollView.addObserver(self, forKeyPath: "frame", options: [.new, .initial], context: &scrollViewContext)
+
+    }
+
+
+    deinit {
+        scrollView.removeObserver(self, forKeyPath: "frame")
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+
+        guard
+            context == &scrollViewContext,
+            let scrollView = object as? NSScrollView
+            else { return }
+
+        scrollViewDidResize(scrollView)
+    }
+
+    func scrollViewDidResize(_ scrollView: NSScrollView) {
+        textView.textContainerInset = NSSize(width: 0, height: scrollView.bounds.height / 2)
     }
 
     func scrollViewDidScroll(_ notification: Notification) {
