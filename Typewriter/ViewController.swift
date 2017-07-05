@@ -16,15 +16,14 @@ class ViewController: NSViewController, NSTextStorageDelegate {
     @IBOutlet weak var clipView: NSClipView!
     @IBOutlet var textView: TypewriterTextView!
 
-    var highlighter: HighlightView!
-
     var isInTypewriterMode = false {
         didSet {
             if isInTypewriterMode {
-                highlighter.isHidden = false
                 alignScrollingToInsertionPoint()
+                textView.needsDisplay = true
             } else {
-                highlighter.isHidden = true
+                textView.hideHighlight()
+                textView.needsDisplay = true
             }
         }
     }
@@ -32,15 +31,9 @@ class ViewController: NSViewController, NSTextStorageDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        highlighter = HighlightView(frame: NSRect.zero)
-        textView.superview!.addSubview(highlighter)
-
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
         textView.textContainerInset = NSSize(width: 0, height: scrollView.frame.height / 2)
         textView.textStorage?.delegate = self
-
-        scrollView.contentView.postsBoundsChangedNotifications = true
-        NotificationCenter.default.addObserver(self, selector: #selector(scrollViewDidScroll(_:)), name: .NSViewBoundsDidChange, object: scrollView.contentView)
 
         scrollView.addObserver(self, forKeyPath: "frame", options: [.new, .initial], context: &scrollViewContext)
     }
@@ -61,11 +54,6 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
         textView.textContainerInset = NSSize(width: 0, height: scrollView.bounds.height / 2)
-    }
-
-    func scrollViewDidScroll(_ notification: Notification) {
-        print(self.scrollView.contentView.bounds)
-        return
     }
 
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
@@ -93,8 +81,6 @@ class ViewController: NSViewController, NSTextStorageDelegate {
         textStorage: NSTextStorage,
         layoutManager: NSLayoutManager) {
 
-        guard isInTypewriterMode else { return }
-
         let lineRect: NSRect = {
 
             var insertionPointGlyphIndex = editedRange.location
@@ -121,9 +107,9 @@ class ViewController: NSViewController, NSTextStorageDelegate {
             return lineRect.offsetBy(dx: 0, dy: offset)
         }()
 
-        highlighter.frame = highlighter.superview!
+        textView.moveHighlight(rect: textView.superview!
             .convert(lineRect, from: textView)
-            .offsetBy(dx: 0, dy: textView.textContainerInset.height)
+            .offsetBy(dx: 0, dy: textView.textContainerInset.height))
         textView.scroll(lineRect.origin)
     }
 
@@ -133,15 +119,24 @@ class ViewController: NSViewController, NSTextStorageDelegate {
 }
 
 class TypewriterTextView: NSTextView {
-    override func scrollToVisible(_ rect: NSRect) -> Bool {
-        return super.scrollToVisible(rect)
+
+    var isDrawingTypingHighlight = true
+    var highlight: NSRect = NSRect.zero
+
+    override func drawBackground(in rect: NSRect) {
+        super.drawBackground(in: rect)
+
+        guard isDrawingTypingHighlight else { return }
+
+        NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
+        NSRectFill(highlight)
     }
-}
 
+    func hideHighlight() {
+        highlight = NSRect.zero
+    }
 
-class HighlightView: NSView {
-    override func draw(_ dirtyRect: NSRect) {
-        NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 0.3).set()
-        NSRectFill(dirtyRect)
+    func moveHighlight(rect: NSRect) {
+        highlight = rect
     }
 }
