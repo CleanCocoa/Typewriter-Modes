@@ -30,7 +30,7 @@ fileprivate extension String {
 }
 
 protocol TypewriterTextStorageDelegate: class {
-    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage)
+    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool)
 }
 
 class TypewriterTextStorage: CustomTextStorageBase {
@@ -47,7 +47,7 @@ class TypewriterTextStorage: CustomTextStorageBase {
     override func processEditing() {
         super.processEditing()
 
-        if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self) }
+        if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: true) }
         wasBlockEditing = false
     }
 
@@ -55,6 +55,6 @@ class TypewriterTextStorage: CustomTextStorageBase {
         super.endEditing()
         wasBlockEditing = isBlockEditing
         isBlockEditing = false
-        typewriterDelegate?.textStorageDidEndEditing(self)
+        typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: false)
     }
 }

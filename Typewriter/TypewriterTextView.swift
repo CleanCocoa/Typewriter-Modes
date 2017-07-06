@@ -28,7 +28,12 @@ class TypewriterTextView: NSTextView {
     func moveHighlight(rect: NSRect) {
         let oldDirtyRect = highlightWithOffset
         highlight = rect
-        setNeedsDisplay(oldDirtyRect, avoidAdditionalLayout: true)
+//        setNeedsDisplay(oldDirtyRect, avoidAdditionalLayout: true)
+        self.needsDisplay = true
+    }
+
+    func moveHighlight(by distance: CGFloat) {
+        moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
     }
 
     var verticalOffset: CGFloat = 0
@@ -41,8 +46,12 @@ class TypewriterTextView: NSTextView {
 
         let insertionPointRect = enclosingScrollView.convert(windowInsertionPointRect, from: nil)
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
-        self.verticalOffset = -(enclosingScrollView.bounds.height / 2) + distance
-
+        let newOffset = ceil(-(enclosingScrollView.bounds.height / 2) + distance)
+        let oldOffset = verticalOffset
+        let difference = newOffset - oldOffset
+        self.verticalOffset = newOffset
+        self.scroll(by: difference)
+        self.moveHighlight(by: difference)
         fixInsertionPointPosition()
     }
 
@@ -59,6 +68,7 @@ class TypewriterTextView: NSTextView {
     /// remains where it was, not moving with the text.
     private func fixInsertionPointPosition() {
         self.setSelectedRange(selectedRange())
+//        self.needsDisplay = true
     }
 
     override var textContainerOrigin: NSPoint {

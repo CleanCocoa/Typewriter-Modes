@@ -51,7 +51,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         guard !isProcessingEdit else { return }
 
         isProcessingEdit = true
-//        textView.lockTypewriterDistance()
+        textView.lockTypewriterDistance()
         isProcessingEdit = false
     }
 
@@ -60,11 +60,11 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
 
         let layoutManager = TypewriterLayoutManager()
         layoutManager.typewriterDelegate = self
-        textView.textContainer?.replaceLayoutManager(layoutManager)
         let textStorage = TypewriterTextStorage()
         textStorage.typewriterDelegate = self
         textStorage.delegate = self
         textView.layoutManager?.replaceTextStorage(textStorage)
+        textView.textContainer?.replaceLayoutManager(layoutManager)
 
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
 
@@ -132,9 +132,13 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         self.pendingPreparation = preparation
     }
 
-    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage) {
+    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool) {
 
+        // If we would not schedule for later here, the layout manager would not be in
+        // a valid state for querying. So we wait for it.
+        guard !endingAfterProcessing else { RunLoop.current.perform(processScrollPreparation); return }
         processScrollPreparation()
+
     }
 
     fileprivate func processScrollPreparation() {
