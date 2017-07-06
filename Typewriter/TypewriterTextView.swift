@@ -34,32 +34,38 @@ class TypewriterTextView: NSTextView {
         moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
     }
 
-    var verticalOffset: CGFloat = 0
+    private var verticalOffset: CGFloat = 0 {
+        didSet {
+            guard verticalOffset != oldValue else { return }
+            let difference = verticalOffset - oldValue
+            self.scroll(by: difference)
+            self.fixInsertionPointPosition()
+            self.moveHighlight(by: difference)
+        }
+    }
+
+    /// Cache to prevent coordinate conversion
+    private var lastInsertionPointY: CGFloat?
 
     func lockTypewriterDistance() {
 
         let screenInsertionPointRect = firstRect(forCharacterRange: selectedRange(), actualRange: nil)
+        guard screenInsertionPointRect.origin.y != lastInsertionPointY else { return }
+        self.lastInsertionPointY = screenInsertionPointRect.origin.y
+
         guard let windowInsertionPointRect = window?.convertFromScreen(screenInsertionPointRect) else { return }
         guard let enclosingScrollView = self.enclosingScrollView else { return }
 
         let insertionPointRect = enclosingScrollView.convert(windowInsertionPointRect, from: nil)
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
         let newOffset = ceil(-(enclosingScrollView.bounds.height / 2) + distance)
-        let oldOffset = verticalOffset
-        let difference = newOffset - oldOffset
+
         self.verticalOffset = newOffset
-        self.scroll(by: difference)
-        self.moveHighlight(by: difference)
-        fixInsertionPointPosition()
     }
 
     func unlockTypewriterDistance() {
-
-        let oldOffset = verticalOffset
-        verticalOffset = 0
-        self.scroll(by: -oldOffset)
-
-        fixInsertionPointPosition()
+        
+        self.verticalOffset = 0
     }
 
     /// After changing the `textContainerOrigin`, the insertion point sometimes
