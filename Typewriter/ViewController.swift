@@ -44,15 +44,15 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         isProcessingEdit = false
     }
 
+    private var needsTypewriterDistanceReset = false
+
     func textViewDidChangeSelection(_ notification: Notification) {
 
         guard isInTypewriterMode else { return }
         guard let textView = notification.object as? TypewriterTextView else { return }
         guard !isProcessingEdit else { return }
 
-        isProcessingEdit = true
-        textView.lockTypewriterDistance()
-        isProcessingEdit = false
+        needsTypewriterDistanceReset = true
     }
 
     override func viewDidLoad() {
@@ -135,7 +135,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool) {
 
         // If we would not schedule for later here, the layout manager would not be in
-        // a valid state for querying. So we wait for it.
+        // a valid state for querying. So we wait for it. Needed for deletion only, it seems.
         guard !endingAfterProcessing else { RunLoop.current.perform(processScrollPreparation); return }
         processScrollPreparation()
 
@@ -145,7 +145,10 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
 
         guard let preparation = self.pendingPreparation else { return }
         self.pendingPreparation = nil
-
+        if needsTypewriterDistanceReset {
+            textView.lockTypewriterDistance()
+            needsTypewriterDistanceReset = false
+        }
         preparation.scrollCommand().performScroll()
     }
 }
