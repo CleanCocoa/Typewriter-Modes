@@ -52,9 +52,10 @@ class TypewriterTextStorage: CustomTextStorageBase {
     }
 
     override func endEditing() {
-        super.endEditing()
+        // `endEditing` triggers `processEditing`, so `wasBlockEditing` needs to be set first
         wasBlockEditing = isBlockEditing
         isBlockEditing = false
+        super.endEditing()
         typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: false)
     }
 }

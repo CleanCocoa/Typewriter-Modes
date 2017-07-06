@@ -37,7 +37,8 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     private var needsTypewriterDistanceReset = false
 
     func textViewDidChangeSelection(_ notification: Notification) {
-        if isInTypewriterMode { needsTypewriterDistanceReset = true }
+        guard isInTypewriterMode else { return }
+        needsTypewriterDistanceReset = true
     }
 
     override func viewDidLoad() {
