@@ -26,10 +26,8 @@ class TypewriterTextView: NSTextView {
     }
 
     func moveHighlight(rect: NSRect) {
-        let oldDirtyRect = highlightWithOffset
+        guard isDrawingTypingHighlight else { return }
         highlight = rect
-//        setNeedsDisplay(oldDirtyRect, avoidAdditionalLayout: true)
-        self.needsDisplay = true
     }
 
     func moveHighlight(by distance: CGFloat) {
@@ -57,8 +55,8 @@ class TypewriterTextView: NSTextView {
 
     func unlockTypewriterDistance() {
 
-        let oldOffset = verticalOffset //+ (enclosingScrollView!.bounds.height / 2) + 1
-        verticalOffset = 0//enclosingScrollView!.bounds.height / 4 // reset to vertical center
+        let oldOffset = verticalOffset
+        verticalOffset = 0
         self.scroll(by: -oldOffset)
 
         fixInsertionPointPosition()
@@ -68,7 +66,7 @@ class TypewriterTextView: NSTextView {
     /// remains where it was, not moving with the text.
     private func fixInsertionPointPosition() {
         self.setSelectedRange(selectedRange())
-//        self.needsDisplay = true
+        self.needsDisplay = true
     }
 
     override var textContainerOrigin: NSPoint {

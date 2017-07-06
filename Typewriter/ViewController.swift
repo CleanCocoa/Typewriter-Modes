@@ -10,7 +10,7 @@ import Cocoa
 
 var scrollViewContext: Void?
 
-class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextStorageDelegate, TypewriterLayoutManagerDelegate, NSTextViewDelegate {
+class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextStorageDelegate, NSTextViewDelegate {
 
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var clipView: NSClipView!
@@ -34,36 +34,22 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         isInTypewriterMode = !isInTypewriterMode
     }
 
-    private var isProcessingEdit = false
-
-    func layoutManagerWillProcessEditing(_ layoutManager: TypewriterLayoutManager) {
-        isProcessingEdit = true
-    }
-
-    func layoutManagerDidProcessEditing(_ layoutManager: TypewriterLayoutManager) {
-        isProcessingEdit = false
-    }
-
     private var needsTypewriterDistanceReset = false
 
     func textViewDidChangeSelection(_ notification: Notification) {
-
-        guard isInTypewriterMode else { return }
-        guard let textView = notification.object as? TypewriterTextView else { return }
-        guard !isProcessingEdit else { return }
-
-        needsTypewriterDistanceReset = true
+        if isInTypewriterMode { needsTypewriterDistanceReset = true }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let layoutManager = TypewriterLayoutManager()
-        layoutManager.typewriterDelegate = self
         let textStorage = TypewriterTextStorage()
         textStorage.typewriterDelegate = self
         textStorage.delegate = self
         textView.layoutManager?.replaceTextStorage(textStorage)
+
+        // Without a custom layout manager, some errors do not surface.
+        let layoutManager = TypewriterLayoutManager()
         textView.textContainer?.replaceLayoutManager(layoutManager)
 
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
@@ -135,10 +121,10 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool) {
 
         // If we would not schedule for later here, the layout manager would not be in
-        // a valid state for querying. So we wait for it. Needed for deletion only, it seems.
+        // a valid state for querying and the app crashes. So we schedule the command for later.
+        // Affects deletion only, it seems, so the tradeoff (making it an async problem) isn't that bad.
         guard !endingAfterProcessing else { RunLoop.current.perform(processScrollPreparation); return }
         processScrollPreparation()
-
     }
 
     fileprivate func processScrollPreparation() {
@@ -153,60 +139,4 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     }
 }
 
-protocol TypewriterLayoutManagerDelegate: class {
-    func layoutManagerWillProcessEditing(_ layoutManager: TypewriterLayoutManager)
-    func layoutManagerDidProcessEditing(_ layoutManager: TypewriterLayoutManager)
-}
-
-class TypewriterLayoutManager: NSLayoutManager {
-
-    weak var typewriterDelegate: TypewriterLayoutManagerDelegate?
-
-    override func processEditing(for textStorage: NSTextStorage, edited editMask: NSTextStorageEditActions, range newCharRange: NSRange, changeInLength delta: Int, invalidatedRange invalidatedCharRange: NSRange) {
-
-        typewriterDelegate?.layoutManagerWillProcessEditing(self)
-        super.processEditing(for: textStorage, edited: editMask, range: newCharRange, changeInLength: delta, invalidatedRange: invalidatedCharRange)
-        typewriterDelegate?.layoutManagerDidProcessEditing(self)
-    }
-}
-
-struct TypewriterScrollCommand {
-
-    let textView: TypewriterTextView
-    let lineRect: NSRect
-
-    func performScroll() {
-
-        textView.moveHighlight(rect: textView.superview!
-            .convert(lineRect, from: textView)
-            .offsetBy(dx: 0, dy: textView.textContainerInset.height))
-        textView.scroll(lineRect.origin)
-    }
-}
-
-struct TypewriterScrollPreparation {
-
-    let textView: TypewriterTextView
-    let layoutManager: NSLayoutManager
-
-    func lineRect() -> NSRect {
-
-        let location = textView.selectedRange().location
-
-        if location >= layoutManager.numberOfGlyphs,
-            layoutManager.extraLineFragmentRect != NSRect.zero {
-            return layoutManager.extraLineFragmentRect
-        }
-
-        let insertionPointGlyphIndex = min(location, layoutManager.numberOfGlyphs - 1)
-
-        return layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
-    }
-
-    func scrollCommand() -> TypewriterScrollCommand {
-
-        return TypewriterScrollCommand(
-            textView: textView,
-            lineRect: self.lineRect())
-    }
-}
+class TypewriterLayoutManager: NSLayoutManager {}
