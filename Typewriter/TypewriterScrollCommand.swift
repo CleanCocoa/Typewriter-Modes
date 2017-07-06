@@ -26,9 +26,14 @@ struct TypewriterScrollPreparation {
 
         let location = textView.selectedRange().location
 
-        if location >= layoutManager.numberOfGlyphs,
-            layoutManager.extraLineFragmentRect != NSRect.zero {
-            return layoutManager.extraLineFragmentRect
+        if location >= layoutManager.numberOfGlyphs {
+            let extraLineFragmentRect = layoutManager.extraLineFragmentRect
+            if extraLineFragmentRect != NSRect.zero,
+                // When typing at the very end, sometimes the origin 
+                // is -(lineHeight) for no apparent reason.
+                extraLineFragmentRect.origin.y >= 0 {
+                return layoutManager.extraLineFragmentRect
+            }
         }
 
         let insertionPointGlyphIndex = min(location, layoutManager.numberOfGlyphs - 1)
