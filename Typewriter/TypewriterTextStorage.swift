@@ -36,19 +36,23 @@ protocol TypewriterTextStorageDelegate: class {
 class TypewriterTextStorage: CustomTextStorageBase {
 
     weak var typewriterDelegate: TypewriterTextStorageDelegate?
+    var isEditing: ((Bool) -> Void)?
 
     private var isBlockEditing = false
     private var wasBlockEditing = false
     override func beginEditing() {
-        super.beginEditing()
+//        isEditing?()
         isBlockEditing = true
+        super.beginEditing()
     }
 
     override func processEditing() {
+        isEditing!(true)
         super.processEditing()
 
         if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: true) }
         wasBlockEditing = false
+        isEditing!(false)
     }
 
     override func endEditing() {

@@ -35,9 +35,10 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     }
 
     private var needsTypewriterDistanceReset = false
-
+    private var isEditing = false
     func textViewDidChangeSelection(_ notification: Notification) {
         guard isInTypewriterMode else { return }
+        guard !isEditing else { return }
         needsTypewriterDistanceReset = true
     }
 
@@ -47,6 +48,8 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         let textStorage = TypewriterTextStorage()
         textStorage.typewriterDelegate = self
         textStorage.delegate = self
+        textStorage.isEditing = {
+            self.isEditing = $0 }
         textView.layoutManager?.replaceTextStorage(textStorage)
 
         // Without a custom layout manager, some errors do not surface.
