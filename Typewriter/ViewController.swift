@@ -87,12 +87,10 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     
     // MARK: Preparation
 
-    func typewriterTextStorageWillProcessEditing(_ typewriterTextStorage: TypewriterTextStorage) {
-        isProcessingEdit = true
-    }
+    func textStorage(_ textStorage: NSTextStorage, willProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
 
-    func typewriterTextStorageDidProcessEditing(_ typewriterTextStorage: TypewriterTextStorage) {
-        isProcessingEdit = false
+        guard isInTypewriterMode else { return }
+        isProcessingEdit = true
     }
 
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
@@ -133,16 +131,14 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     private(set) var pendingPreparation: TypewriterScrollPreparation?
 
     func prepareScroll(_ preparation: TypewriterScrollPreparation) {
+        
         self.pendingPreparation = preparation
     }
 
-    func typewriterTextStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool) {
+    func typewriterTextStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage) {
 
-        // If we would not schedule for later here, the layout manager would not be in
-        // a valid state for querying and the app crashes. So we schedule the command for later.
-        // Affects deletion only, it seems, so the tradeoff (making it an async problem) isn't that bad.
-        guard !endingAfterProcessing else { RunLoop.current.perform(processScrollPreparation); return }
         processScrollPreparation()
+        isProcessingEdit = false
     }
 
     fileprivate func processScrollPreparation() {

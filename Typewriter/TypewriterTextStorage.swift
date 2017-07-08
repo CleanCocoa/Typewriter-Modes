@@ -34,50 +34,24 @@ fileprivate extension String {
 }
 
 protocol TypewriterTextStorageDelegate: class {
-    /// Like `textStorage(_:willProcessEditing:range:changeInLength:)` called
-    /// before the actual processing begins.
-    func typewriterTextStorageWillProcessEditing(_ typewriterTextStorage: TypewriterTextStorage)
-
-    /// Called after `typewriterTextStorageDidEndEditing`, if `processEditing()`
-    /// does emit that message.
-    func typewriterTextStorageDidProcessEditing(_ typewriterTextStorage: TypewriterTextStorage)
-
-    /// Called to notify about the end of `endEditing()`, or in case of an edit
-    /// outside of a begin/end editing block, at the end of `processEditing()`
-    /// but before `typewriterTextStorageDidProcessEditing(_:)`.
-    func typewriterTextStorageDidEndEditing(
-        _ typewriterTextStorage: TypewriterTextStorage,
-        butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool)
+    /// Called to notify about the end of `endEditing()`.
+    func typewriterTextStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage)
 }
 
 class TypewriterTextStorage: CustomTextStorageBase {
 
     weak var typewriterDelegate: TypewriterTextStorageDelegate?
 
-    private var isBlockEditing = false
-    private var wasBlockEditing = false
-
     override func beginEditing() {
-        isBlockEditing = true
         super.beginEditing()
     }
 
     override func processEditing() {
-        typewriterDelegate?.typewriterTextStorageWillProcessEditing(self)
-
         super.processEditing()
-
-        if !wasBlockEditing { typewriterDelegate?.typewriterTextStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: true) }
-        wasBlockEditing = false
-
-        typewriterDelegate?.typewriterTextStorageDidProcessEditing(self)
     }
 
     override func endEditing() {
-        // `super.endEditing()` triggers `processEditing`, so `wasBlockEditing` needs to be set first
-        wasBlockEditing = isBlockEditing
-        isBlockEditing = false
         super.endEditing()
-        typewriterDelegate?.typewriterTextStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: false)
+        typewriterDelegate?.typewriterTextStorageDidEndEditing(self)
     }
 }
