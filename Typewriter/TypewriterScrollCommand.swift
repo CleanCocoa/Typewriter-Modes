@@ -12,8 +12,7 @@ struct TypewriterScrollCommand {
         textView.moveHighlight(rect: textView.superview!
             .convert(lineRect, from: textView)
             .offsetBy(dx: 0, dy: textView.textContainerInset.height))
-        textView.scroll(lineRect.origin)
-        textView.needsDisplay = true // or else scrolling is jagged
+        textView.typewriterScroll(to: lineRect.origin)
     }
 }
 

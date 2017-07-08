@@ -38,7 +38,7 @@ class TypewriterTextView: NSTextView {
         didSet {
             guard verticalOffset != oldValue else { return }
             let difference = verticalOffset - oldValue
-            self.scroll(by: difference)
+            self.typewriterScroll(by: difference)
             self.fixInsertionPointPosition()
             self.moveHighlight(by: difference)
         }
@@ -86,11 +86,16 @@ class TypewriterTextView: NSTextView {
         textContainerInset = NSSize(width: 0, height: halfScreen)
     }
 
-    func scroll(by offset: CGFloat) {
+    func typewriterScroll(by offset: CGFloat) {
 
         guard let visibleRect = enclosingScrollView?.contentView.documentVisibleRect else { return }
         let point = visibleRect.origin
             .applying(.init(translationX: 0, y: offset))
-        scroll(point)
+        typewriterScroll(to: point)
+    }
+
+    func typewriterScroll(to point: NSPoint) {
+
+        self.enclosingScrollView?.contentView.bounds.origin = point
     }
 }
