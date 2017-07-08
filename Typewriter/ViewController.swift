@@ -42,9 +42,9 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         textStorage.delegate = self
         textView.layoutManager?.replaceTextStorage(textStorage)
 
-        // Without a custom layout manager, some errors do not surface.
-        let layoutManager = TypewriterLayoutManager()
-        textView.textContainer?.replaceLayoutManager(layoutManager)
+        // Without a custom layout manager, some errors do not surface, so it's
+        // a good idea to keep this useless replacement during development.
+        textView.textContainer?.replaceLayoutManager(NSLayoutManager())
 
         textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
 
@@ -156,5 +156,3 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         preparation.scrollCommand().performScroll()
     }
 }
-
-class TypewriterLayoutManager: NSLayoutManager {}
