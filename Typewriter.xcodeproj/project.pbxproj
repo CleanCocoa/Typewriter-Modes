@@ -13,6 +13,7 @@
 		50CBA4871F0A35760092E8ED /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 50CBA4851F0A35760092E8ED /* Main.storyboard */; };
 		50EE35321F0CE5C500918B01 /* TypewriterTextStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EE35311F0CE5C500918B01 /* TypewriterTextStorage.swift */; };
 		50EE35341F0CE5F600918B01 /* TypewriterTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EE35331F0CE5F600918B01 /* TypewriterTextView.swift */; };
+		50EF45111F0E2AEB00A157A9 /* TypewriterScrollCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EF45101F0E2AEB00A157A9 /* TypewriterScrollCommand.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		50CBA4881F0A35760092E8ED /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50EE35311F0CE5C500918B01 /* TypewriterTextStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypewriterTextStorage.swift; sourceTree = "<group>"; };
 		50EE35331F0CE5F600918B01 /* TypewriterTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypewriterTextView.swift; sourceTree = "<group>"; };
+		50EF45101F0E2AEB00A157A9 /* TypewriterScrollCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypewriterScrollCommand.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			children = (
 				50CBA47F1F0A35760092E8ED /* AppDelegate.swift */,
 				50CBA4811F0A35760092E8ED /* ViewController.swift */,
+				50EF45101F0E2AEB00A157A9 /* TypewriterScrollCommand.swift */,
 				50EE35311F0CE5C500918B01 /* TypewriterTextStorage.swift */,
 				50EE35331F0CE5F600918B01 /* TypewriterTextView.swift */,
 				50CBA4831F0A35760092E8ED /* Assets.xcassets */,
@@ -139,6 +142,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50EF45111F0E2AEB00A157A9 /* TypewriterScrollCommand.swift in Sources */,
 				50CBA4821F0A35760092E8ED /* ViewController.swift in Sources */,
 				50CBA4801F0A35760092E8ED /* AppDelegate.swift in Sources */,
 				50EE35341F0CE5F600918B01 /* TypewriterTextView.swift in Sources */,

@@ -30,31 +30,36 @@ fileprivate extension String {
 }
 
 protocol TypewriterTextStorageDelegate: class {
-    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage)
+    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool)
 }
 
 class TypewriterTextStorage: CustomTextStorageBase {
 
     weak var typewriterDelegate: TypewriterTextStorageDelegate?
+    var isEditing: ((Bool) -> Void)?
 
     private var isBlockEditing = false
     private var wasBlockEditing = false
+
     override func beginEditing() {
-        super.beginEditing()
         isBlockEditing = true
+        super.beginEditing()
     }
 
     override func processEditing() {
+        isEditing!(true)
         super.processEditing()
 
-        if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self) }
+        if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: true) }
         wasBlockEditing = false
+        isEditing!(false)
     }
 
     override func endEditing() {
-        super.endEditing()
+        // `super.endEditing()` triggers `processEditing`, so `wasBlockEditing` needs to be set first
         wasBlockEditing = isBlockEditing
         isBlockEditing = false
-        typewriterDelegate?.textStorageDidEndEditing(self)
+        super.endEditing()
+        typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: false)
     }
 }

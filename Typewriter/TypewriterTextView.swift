@@ -26,39 +26,53 @@ class TypewriterTextView: NSTextView {
     }
 
     func moveHighlight(rect: NSRect) {
-        let oldDirtyRect = highlightWithOffset
+        guard isDrawingTypingHighlight else { return }
         highlight = rect
-        setNeedsDisplay(oldDirtyRect, avoidAdditionalLayout: true)
     }
 
-    var verticalOffset: CGFloat = 0
+    func moveHighlight(by distance: CGFloat) {
+        moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
+    }
+
+    private var verticalOffset: CGFloat = 0 {
+        didSet {
+            guard verticalOffset != oldValue else { return }
+            let difference = verticalOffset - oldValue
+            self.typewriterScroll(by: difference)
+            self.fixInsertionPointPosition()
+            self.moveHighlight(by: difference)
+        }
+    }
+
+    /// Cache to prevent coordinate conversion
+    private var lastInsertionPointY: CGFloat?
 
     func lockTypewriterDistance() {
 
         let screenInsertionPointRect = firstRect(forCharacterRange: selectedRange(), actualRange: nil)
+        guard screenInsertionPointRect.origin.y != lastInsertionPointY else { return }
+        self.lastInsertionPointY = screenInsertionPointRect.origin.y
+
         guard let windowInsertionPointRect = window?.convertFromScreen(screenInsertionPointRect) else { return }
         guard let enclosingScrollView = self.enclosingScrollView else { return }
 
         let insertionPointRect = enclosingScrollView.convert(windowInsertionPointRect, from: nil)
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
-        self.verticalOffset = -(enclosingScrollView.bounds.height / 2) + distance
+        let newOffset = ceil(-(enclosingScrollView.bounds.height / 2) + distance)
 
-        fixInsertionPointPosition()
+        self.verticalOffset = newOffset
     }
 
     func unlockTypewriterDistance() {
-
-        let oldOffset = verticalOffset //+ (enclosingScrollView!.bounds.height / 2) + 1
-        verticalOffset = 0//enclosingScrollView!.bounds.height / 4 // reset to vertical center
-        self.scroll(by: -oldOffset)
-
-        fixInsertionPointPosition()
+        
+        self.verticalOffset = 0
     }
 
     /// After changing the `textContainerOrigin`, the insertion point sometimes
     /// remains where it was, not moving with the text.
     private func fixInsertionPointPosition() {
         self.setSelectedRange(selectedRange())
+        self.needsDisplay = true
     }
 
     override var textContainerOrigin: NSPoint {
@@ -72,11 +86,16 @@ class TypewriterTextView: NSTextView {
         textContainerInset = NSSize(width: 0, height: halfScreen)
     }
 
-    func scroll(by offset: CGFloat) {
+    func typewriterScroll(by offset: CGFloat) {
 
         guard let visibleRect = enclosingScrollView?.contentView.documentVisibleRect else { return }
         let point = visibleRect.origin
             .applying(.init(translationX: 0, y: offset))
-        scroll(point)
+        typewriterScroll(to: point)
+    }
+
+    func typewriterScroll(to point: NSPoint) {
+
+        self.enclosingScrollView?.contentView.bounds.origin = point
     }
 }
