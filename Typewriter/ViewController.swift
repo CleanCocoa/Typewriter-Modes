@@ -34,22 +34,12 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         isInTypewriterMode = !isInTypewriterMode
     }
 
-    private var needsTypewriterDistanceReset = false
-    private var isEditing = false
-    func textViewDidChangeSelection(_ notification: Notification) {
-        guard isInTypewriterMode else { return }
-        guard !isEditing else { return }
-        needsTypewriterDistanceReset = true
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         let textStorage = TypewriterTextStorage()
         textStorage.typewriterDelegate = self
         textStorage.delegate = self
-        textStorage.isEditing = {
-            self.isEditing = $0 }
         textView.layoutManager?.replaceTextStorage(textStorage)
 
         // Without a custom layout manager, some errors do not surface.
@@ -80,9 +70,31 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     }
 
     // MARK: - Typewriter Scrolling
+
+    private var needsTypewriterDistanceReset = false
+
+    /// Indicates if the text storage is currently processing changes
+    /// and current text view changes reflect programmatic adjustments.
+    private var isProcessingEdit = false
+    private var isUserInitiated: Bool { return !isProcessingEdit }
+
+    func textViewDidChangeSelection(_ notification: Notification) {
+        guard isInTypewriterMode else { return }
+        guard isUserInitiated else { return }
+        needsTypewriterDistanceReset = true
+    }
+
+    
     // MARK: Preparation
 
+    func textStorage(_ textStorage: NSTextStorage, willProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
+
+        isProcessingEdit = true
+    }
+
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
+
+        isProcessingEdit = false
 
         guard isInTypewriterMode else { return }
         prepareScrollingToInsertionPoint()
@@ -113,6 +125,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
 
         prepareScroll(preparation)
     }
+
 
     // MARK: Execution
 

@@ -40,8 +40,8 @@ class TypewriterTextStorage: CustomTextStorageBase {
 
     private var isBlockEditing = false
     private var wasBlockEditing = false
+
     override func beginEditing() {
-//        isEditing?()
         isBlockEditing = true
         super.beginEditing()
     }
@@ -56,7 +56,7 @@ class TypewriterTextStorage: CustomTextStorageBase {
     }
 
     override func endEditing() {
-        // `endEditing` triggers `processEditing`, so `wasBlockEditing` needs to be set first
+        // `super.endEditing()` triggers `processEditing`, so `wasBlockEditing` needs to be set first
         wasBlockEditing = isBlockEditing
         isBlockEditing = false
         super.endEditing()
