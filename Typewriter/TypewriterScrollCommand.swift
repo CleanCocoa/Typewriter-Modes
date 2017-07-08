@@ -9,10 +9,12 @@ struct TypewriterScrollCommand {
 
     func performScroll() {
 
+
         textView.moveHighlight(rect: textView.superview!
             .convert(lineRect, from: textView)
             .offsetBy(dx: 0, dy: textView.textContainerInset.height))
         textView.typewriterScroll(to: lineRect.origin)
+
     }
 }
 

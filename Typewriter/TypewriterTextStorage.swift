@@ -13,13 +13,17 @@ class CustomTextStorageBase: NSTextStorage {
     }
 
     public override func replaceCharacters(in range: NSRange, with str: String) {
+        beginEditing()
         content.replaceCharacters(in: range, with: str)
         self.edited(.editedCharacters, range: range, changeInLength: str.nsLength - range.length)
+        endEditing()
     }
 
     public override func setAttributes(_ attrs: [String : Any]?, range: NSRange) {
+        beginEditing()
         content.setAttributes(attrs, range: range)
         self.edited(.editedAttributes, range: range, changeInLength: 0)
+        endEditing()
     }
 }
 
