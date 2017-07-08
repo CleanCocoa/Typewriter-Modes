@@ -30,13 +30,25 @@ fileprivate extension String {
 }
 
 protocol TypewriterTextStorageDelegate: class {
-    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool)
+    /// Like `textStorage(_:willProcessEditing:range:changeInLength:)` called
+    /// before the actual processing begins.
+    func typewriterTextStorageWillProcessEditing(_ typewriterTextStorage: TypewriterTextStorage)
+
+    /// Called after `typewriterTextStorageDidEndEditing`, if `processEditing()`
+    /// does emit that message.
+    func typewriterTextStorageDidProcessEditing(_ typewriterTextStorage: TypewriterTextStorage)
+
+    /// Called to notify about the end of `endEditing()`, or in case of an edit
+    /// outside of a begin/end editing block, at the end of `processEditing()`
+    /// but before `typewriterTextStorageDidProcessEditing(_:)`.
+    func typewriterTextStorageDidEndEditing(
+        _ typewriterTextStorage: TypewriterTextStorage,
+        butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool)
 }
 
 class TypewriterTextStorage: CustomTextStorageBase {
 
     weak var typewriterDelegate: TypewriterTextStorageDelegate?
-    var isEditing: ((Bool) -> Void)?
 
     private var isBlockEditing = false
     private var wasBlockEditing = false
@@ -47,12 +59,14 @@ class TypewriterTextStorage: CustomTextStorageBase {
     }
 
     override func processEditing() {
-        isEditing!(true)
+        typewriterDelegate?.typewriterTextStorageWillProcessEditing(self)
+
         super.processEditing()
 
-        if !wasBlockEditing { typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: true) }
+        if !wasBlockEditing { typewriterDelegate?.typewriterTextStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: true) }
         wasBlockEditing = false
-        isEditing!(false)
+
+        typewriterDelegate?.typewriterTextStorageDidProcessEditing(self)
     }
 
     override func endEditing() {
@@ -60,6 +74,6 @@ class TypewriterTextStorage: CustomTextStorageBase {
         wasBlockEditing = isBlockEditing
         isBlockEditing = false
         super.endEditing()
-        typewriterDelegate?.textStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: false)
+        typewriterDelegate?.typewriterTextStorageDidEndEditing(self, butItReallyOnlyProcessedTheEdit: false)
     }
 }

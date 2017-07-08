@@ -87,14 +87,15 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     
     // MARK: Preparation
 
-    func textStorage(_ textStorage: NSTextStorage, willProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
-
+    func typewriterTextStorageWillProcessEditing(_ typewriterTextStorage: TypewriterTextStorage) {
         isProcessingEdit = true
     }
 
-    func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
-
+    func typewriterTextStorageDidProcessEditing(_ typewriterTextStorage: TypewriterTextStorage) {
         isProcessingEdit = false
+    }
+
+    func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
 
         guard isInTypewriterMode else { return }
         prepareScrollingToInsertionPoint()
@@ -135,7 +136,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         self.pendingPreparation = preparation
     }
 
-    func textStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool) {
+    func typewriterTextStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage, butItReallyOnlyProcessedTheEdit endingAfterProcessing: Bool) {
 
         // If we would not schedule for later here, the layout manager would not be in
         // a valid state for querying and the app crashes. So we schedule the command for later.
