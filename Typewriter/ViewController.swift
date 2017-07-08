@@ -96,59 +96,67 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
 
         guard isInTypewriterMode else { return }
-        prepareScrollingToInsertionPoint()
+        scheduleScrollingToInsertionPoint()
     }
 
-    fileprivate func alignScrollingToInsertionPoint() {
+    fileprivate var shouldScrollToInsertionPoint = false
+    fileprivate func scheduleScrollingToInsertionPoint() {
 
-        prepareScrollingToInsertionPoint()
-        processScrollPreparation()
-    }
-
-    fileprivate func prepareScrollingToInsertionPoint() {
-
-        guard let layoutManager = textView.layoutManager else { return }
-
-        prepareAlignScrolling(
-            textView: textView,
-            layoutManager: layoutManager)
-    }
-
-    fileprivate func prepareAlignScrolling(
-        textView: TypewriterTextView,
-        layoutManager: NSLayoutManager) {
-
-        let preparation = TypewriterScrollPreparation(
-            textView: textView,
-            layoutManager: layoutManager)
-
-        prepareScroll(preparation)
+        shouldScrollToInsertionPoint = true
     }
 
 
     // MARK: Execution
 
-    private(set) var pendingPreparation: TypewriterScrollPreparation?
-
-    func prepareScroll(_ preparation: TypewriterScrollPreparation) {
-        
-        self.pendingPreparation = preparation
-    }
-
     func typewriterTextStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage) {
 
-        processScrollPreparation()
+        processScrollingToInsertionPoint()
+    }
+
+    fileprivate func processScrollingToInsertionPoint() {
+
+        guard shouldScrollToInsertionPoint else { return }
+        defer { shouldScrollToInsertionPoint = false }
+
+        alignScrollingToInsertionPoint()
         isProcessingEdit = false
     }
 
-    fileprivate func processScrollPreparation() {
+    fileprivate func alignScrollingToInsertionPoint() {
 
-        guard let preparation = self.pendingPreparation else { return }
-        self.pendingPreparation = nil
+        guard let layoutManager = textView.layoutManager else { return }
+
         if needsTypewriterDistanceReset {
             textView.lockTypewriterDistance()
             needsTypewriterDistanceReset = false
         }
-        preparation.scrollCommand().performScroll()
+        let lineRect = insertionPointLineRect(
+            textView: textView,
+            layoutManager: layoutManager)
+
+        // TODO: move to TextView if possible
+        textView.moveHighlight(rect: textView.superview!
+            .convert(lineRect, from: textView)
+            .offsetBy(dx: 0, dy: textView.textContainerInset.height))
+        textView.typewriterScroll(to: lineRect.origin)
     }
+}
+
+func insertionPointLineRect(textView: NSTextView, layoutManager: NSLayoutManager) -> NSRect {
+
+    let location = textView.selectedRange().location
+
+    if location >= layoutManager.numberOfGlyphs {
+        let extraLineFragmentRect = layoutManager.extraLineFragmentRect
+        if extraLineFragmentRect != NSRect.zero,
+            // When typing at the very end, sometimes the origin
+            // is -(lineHeight) for no apparent reason.
+            extraLineFragmentRect.origin.y >= 0 {
+            return layoutManager.extraLineFragmentRect
+        }
+    }
+
+    let insertionPointGlyphIndex = min(location, layoutManager.numberOfGlyphs - 1)
+
+    return layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
 }
