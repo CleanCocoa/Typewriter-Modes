@@ -66,6 +66,7 @@ class TypewriterTextView: NSTextView {
     func unlockTypewriterDistance() {
         
         self.verticalOffset = 0
+        self.lastInsertionPointY = nil
     }
 
     /// After changing the `textContainerOrigin`, the insertion point sometimes
