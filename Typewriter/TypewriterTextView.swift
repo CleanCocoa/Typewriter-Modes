@@ -25,7 +25,16 @@ class TypewriterTextView: NSTextView {
         highlight = NSRect.zero
     }
 
-    func moveHighlight(rect: NSRect) {
+    /// Move line highlight to `rect` in terms of the text view's coordinate system.
+    /// Translates `rect` to take into account the `textContainer` position.
+    func moveHighlight(rectInTextView rect: NSRect) {
+        guard let rectInSuperview = self.superview?
+            .convert(rect, from: self) else { return }
+        moveHighlight(rect: rectInSuperview
+            .offsetBy(dx: 0, dy: textContainerInset.height))
+    }
+
+    private func moveHighlight(rect: NSRect) {
         guard isDrawingTypingHighlight else { return }
         highlight = rect
     }

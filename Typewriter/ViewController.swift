@@ -130,14 +130,11 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
             textView.lockTypewriterDistance()
             needsTypewriterDistanceReset = false
         }
+
         let lineRect = insertionPointLineRect(
             textView: textView,
             layoutManager: layoutManager)
-
-        // TODO: move to TextView if possible
-        textView.moveHighlight(rect: textView.superview!
-            .convert(lineRect, from: textView)
-            .offsetBy(dx: 0, dy: textView.textContainerInset.height))
+        textView.moveHighlight(rectInTextView: lineRect)
         textView.typewriterScroll(to: lineRect.origin)
     }
 }
