@@ -67,7 +67,7 @@ class TypewriterTextView: NSTextView {
 
         let insertionPointRect = enclosingScrollView.convert(windowInsertionPointRect, from: nil)
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
-        let newOffset = ceil(-(enclosingScrollView.bounds.height / 2) + distance)
+        let newOffset = ceil(-(textContainerInset.height) + distance)
 
         self.verticalOffset = newOffset
     }
