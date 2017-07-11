@@ -6,8 +6,8 @@ class TypewriterTextView: NSTextView {
 
     var isDrawingTypingHighlight = true
     var highlight: NSRect {
-        set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: verticalOffset) }
-        get { return highlightWithOffset.offsetBy(dx: 0, dy: -verticalOffset) }
+        set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: focusLockOffset) }
+        get { return highlightWithOffset.offsetBy(dx: 0, dy: -focusLockOffset) }
     }
     var highlightWithOffset: NSRect = NSRect.zero
 
@@ -43,10 +43,10 @@ class TypewriterTextView: NSTextView {
         moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
     }
 
-    private var verticalOffset: CGFloat = 0 {
+    private var focusLockOffset: CGFloat = 0 {
         didSet {
-            guard verticalOffset != oldValue else { return }
-            let difference = verticalOffset - oldValue
+            guard focusLockOffset != oldValue else { return }
+            let difference = focusLockOffset - oldValue
             self.typewriterScroll(by: difference)
             self.fixInsertionPointPosition()
             self.moveHighlight(by: difference)
@@ -69,12 +69,12 @@ class TypewriterTextView: NSTextView {
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
         let newOffset = ceil(-(textContainerInset.height) + distance)
 
-        self.verticalOffset = newOffset
+        self.focusLockOffset = newOffset
     }
 
     func unlockTypewriterDistance() {
         
-        self.verticalOffset = 0
+        self.focusLockOffset = 0
         self.lastInsertionPointY = nil
     }
 
@@ -87,7 +87,7 @@ class TypewriterTextView: NSTextView {
 
     override var textContainerOrigin: NSPoint {
         let origin = super.textContainerOrigin
-        return origin.applying(.init(translationX: 0, y: verticalOffset))
+        return origin.applying(.init(translationX: 0, y: focusLockOffset))
     }
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
