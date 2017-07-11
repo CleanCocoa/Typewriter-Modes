@@ -6,8 +6,8 @@ class TypewriterTextView: NSTextView {
 
     var isDrawingTypingHighlight = true
     var highlight: NSRect {
-        set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: focusLockOffset) }
-        get { return highlightWithOffset.offsetBy(dx: 0, dy: -focusLockOffset) }
+        set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: 0) }
+        get { return highlightWithOffset.offsetBy(dx: 0, dy: 0) }
     }
     var highlightWithOffset: NSRect = NSRect.zero
 
@@ -31,7 +31,7 @@ class TypewriterTextView: NSTextView {
         guard let rectInSuperview = self.superview?
             .convert(rect, from: self) else { return }
         moveHighlight(rect: rectInSuperview
-            .offsetBy(dx: 0, dy: textContainerInset.height))
+            .offsetBy(dx: 0, dy: 0))
     }
 
     private func moveHighlight(rect: NSRect) {
@@ -47,9 +47,9 @@ class TypewriterTextView: NSTextView {
         didSet {
             guard focusLockOffset != oldValue else { return }
             let difference = focusLockOffset - oldValue
-            self.typewriterScroll(by: difference)
-            self.fixInsertionPointPosition()
-            self.moveHighlight(by: difference)
+//            self.typewriterScroll(by: difference)
+//            self.fixInsertionPointPosition()
+//            self.moveHighlight(by: difference)
         }
     }
 
@@ -67,7 +67,7 @@ class TypewriterTextView: NSTextView {
 
         let insertionPointRect = enclosingScrollView.convert(windowInsertionPointRect, from: nil)
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
-        let newOffset = ceil(-(textContainerInset.height) + distance)
+        let newOffset = ceil(-(textContainerInset.height - overscrollTopFlush) + distance)
 
         self.focusLockOffset = newOffset
     }
@@ -85,15 +85,19 @@ class TypewriterTextView: NSTextView {
         self.needsDisplay = true
     }
 
+    /// Amount of pixels to nudge the text up so it's flush with the top edge.
+    var overscrollTopFlush: CGFloat = 0
+
     override var textContainerOrigin: NSPoint {
         let origin = super.textContainerOrigin
-        return origin.applying(.init(translationX: 0, y: focusLockOffset))
+        return origin.applying(.init(translationX: 0, y: -overscrollTopFlush))
     }
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
 
         let halfScreen = floor((scrollView.bounds.height - lineHeight) / 2)
         textContainerInset = NSSize(width: 0, height: halfScreen)
+        overscrollTopFlush = halfScreen
     }
 
     var lineHeight: CGFloat {
@@ -114,6 +118,6 @@ class TypewriterTextView: NSTextView {
 
     func typewriterScroll(to point: NSPoint) {
 
-        self.enclosingScrollView?.contentView.bounds.origin = point
+        self.enclosingScrollView?.contentView.bounds.origin = point.applying(.init(translationX: 0, y: -focusLockOffset))
     }
 }
