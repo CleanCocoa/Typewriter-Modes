@@ -92,8 +92,16 @@ class TypewriterTextView: NSTextView {
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
 
-        let halfScreen = scrollView.bounds.height / 2
+        let halfScreen = floor((scrollView.bounds.height - lineHeight) / 2)
         textContainerInset = NSSize(width: 0, height: halfScreen)
+    }
+
+    var lineHeight: CGFloat {
+        guard let font = self.font,
+            let layoutManager = self.layoutManager
+            else { return 0 }
+
+        return layoutManager.defaultLineHeight(for: font)
     }
 
     func typewriterScroll(by offset: CGFloat) {
