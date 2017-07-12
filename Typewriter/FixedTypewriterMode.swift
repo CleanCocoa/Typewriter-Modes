@@ -2,7 +2,32 @@
 
 import AppKit
 
-class FixedTypewriterMode: TypewriterMode {
+class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
+
+    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
+
+    private(set) var focusLockOffset: CGFloat = 0
+
+    func adjustOverscrolling(
+        containerBounds rect: NSRect,
+        lineHeight: CGFloat) {
+
+        let halfScreen = floor((rect.height - lineHeight) / 2)
+        configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
+
+        // Put focus lock 20% above the center
+        let topFlush = rect.height * 0.2
+        configuration.overscrollTopFlush = topFlush
+        self.focusLockOffset = halfScreen - topFlush
+    }
+
+    func typewriterScrolled(_ point: NSPoint) -> NSPoint {
+
+        return point
+    }
+
+    
+    // MARK: - Typewriter Highlight
 
     var highlight: NSRect {
         set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: focusLockOffset) }
@@ -21,30 +46,5 @@ class FixedTypewriterMode: TypewriterMode {
 
     func hideHighlight() {
         highlight = NSRect.zero
-    }
-
-    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
-
-    private(set) var focusLockOffset: CGFloat = 0
-
-    /// Cached (top) inset to position the highlighter.
-    private var overscrollInset: CGFloat = 0
-
-    func adjustOverscrolling(
-        containerBounds rect: NSRect,
-        lineHeight: CGFloat) {
-
-        let halfScreen = floor((rect.height - lineHeight) / 2)
-        configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
-
-        // Put focus lock 20% above the center
-        let topFlush = rect.height * 0.2
-        configuration.overscrollTopFlush = topFlush
-        self.focusLockOffset = halfScreen - topFlush
-    }
-
-    func typewriterScrolled(_ point: NSPoint) -> NSPoint {
-
-        return point
     }
 }

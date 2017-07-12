@@ -8,40 +8,10 @@ class TypewriterTextView: NSTextView {
 //    var typewriterMode: TypewriterMode? = FullOverscrollFlexibleTypewriterMode(heightProportion: 1)
 //    var typewriterMode: TypewriterMode? = BottomOverscrollFlexibleTypewriterMode()
 
-    var isDrawingTypingHighlight = true
-
-    override func drawBackground(in rect: NSRect) {
-        super.drawBackground(in: rect)
-
-        guard isDrawingTypingHighlight else { return }
-        typewriterMode?.drawHighlight(in: rect)
-    }
-
-    func hideHighlight() {
-        typewriterMode?.hideHighlight()
-    }
-
-    /// Move line highlight to `rect` in terms of the text view's coordinate system.
-    /// Translates `rect` to take into account the `textContainer` position.
-    func moveHighlight(rectInTextView rect: NSRect) {
-        guard let rectInSuperview = self.superview?
-            .convert(rect, from: self) else { return }
-        moveHighlight(rect: rectInSuperview)
-    }
-
-    private func moveHighlight(rect: NSRect) {
-        guard isDrawingTypingHighlight else { return }
-        typewriterMode?.moveHighlight(rect: rect)
-    }
-
-    func moveHighlight(by distance: CGFloat) {
-        guard let highlight = typewriterMode?.highlight else { return }
-        moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
-    }
-
-    private var focusLockOffset: CGFloat {
-        return typewriterMode?.focusLockOffset ?? 0
-    }
+    /// Amount of pixels to nudge the text up to be flush with the top edge.
+    private var overscrollTopFlush: CGFloat { return typewriterMode?.configuration.overscrollTopFlush ?? 0 }
+    private var textOriginOffset: CGFloat { return typewriterMode?.configuration.textOriginOffset ?? 0 }
+    private var focusLockOffset: CGFloat { return typewriterMode?.focusLockOffset ?? 0 }
 
     func proposeFocusLockOffset(_ offset: CGFloat) {
 
@@ -92,14 +62,6 @@ class TypewriterTextView: NSTextView {
         self.needsDisplay = true
     }
 
-    /// Amount of pixels to nudge the text up to be flush with the top edge.
-    var overscrollTopFlush: CGFloat {
-        return typewriterMode?.configuration.overscrollTopFlush ?? 0
-    }
-    var textOriginOffset: CGFloat {
-        return typewriterMode?.configuration.textOriginOffset ?? 0
-    }
-
     override var textContainerOrigin: NSPoint {
         let origin = super.textContainerOrigin
         return origin.applying(.init(translationX: 0, y: textOriginOffset - overscrollTopFlush))
@@ -134,5 +96,41 @@ class TypewriterTextView: NSTextView {
 
         guard let scrolledPoint = typewriterMode?.typewriterScrolled(point) else { return }
         self.enclosingScrollView?.contentView.bounds.origin = scrolledPoint
+    }
+
+
+    // MARK: - Typewriter Highlight
+
+    var isDrawingTypingHighlight = true
+
+    var highlightDrawer: DrawsTypewriterLineHighlight? { return typewriterMode as? DrawsTypewriterLineHighlight }
+
+    override func drawBackground(in rect: NSRect) {
+        super.drawBackground(in: rect)
+
+        guard isDrawingTypingHighlight else { return }
+        highlightDrawer?.drawHighlight(in: rect)
+    }
+
+    func hideHighlight() {
+        highlightDrawer?.hideHighlight()
+    }
+
+    /// Move line highlight to `rect` in terms of the text view's coordinate system.
+    /// Translates `rect` to take into account the `textContainer` position.
+    func moveHighlight(rectInTextView rect: NSRect) {
+        guard let rectInSuperview = self.superview?
+            .convert(rect, from: self) else { return }
+        moveHighlight(rect: rectInSuperview)
+    }
+
+    private func moveHighlight(rect: NSRect) {
+        guard isDrawingTypingHighlight else { return }
+        highlightDrawer?.moveHighlight(rect: rect)
+    }
+
+    func moveHighlight(by distance: CGFloat) {
+        guard let highlight = highlightDrawer?.highlight else { return }
+        moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
     }
 }

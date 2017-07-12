@@ -2,22 +2,7 @@
 
 import AppKit
 
-class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode {
-
-    var highlight: NSRect = NSRect.zero
-
-    func moveHighlight(rect: NSRect) {
-        highlight = rect
-    }
-
-    func drawHighlight(in rect: NSRect) {
-        NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
-        NSRectFill(highlight)
-    }
-
-    func hideHighlight() {
-        highlight = NSRect.zero
-    }
+class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewriterLineHighlight {
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
@@ -40,5 +25,23 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode {
     func typewriterScrolled(_ point: NSPoint) -> NSPoint {
 
         return point.applying(.init(translationX: 0, y: -focusLockOffset))
+    }
+
+
+    // MARK: - Typewriter Highlight
+
+    var highlight: NSRect = NSRect.zero
+
+    func moveHighlight(rect: NSRect) {
+        highlight = rect
+    }
+
+    func drawHighlight(in rect: NSRect) {
+        NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
+        NSRectFill(highlight)
+    }
+
+    func hideHighlight() {
+        highlight = NSRect.zero
     }
 }
