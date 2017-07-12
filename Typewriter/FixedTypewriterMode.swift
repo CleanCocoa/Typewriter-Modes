@@ -6,7 +6,7 @@ class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
-    private(set) var focusLockOffset: CGFloat = 0
+    private var focusLockOffset: CGFloat = 0
 
     func adjustOverscrolling(
         containerSize size: NSSize,

@@ -15,15 +15,16 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
-    private(set) var focusLockOffset: CGFloat = 0 {
+    private var focusLockOffset: CGFloat = 0 {
         didSet {
             configuration.textOriginInset = focusLockOffset
         }
     }
 
-    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat {
+    func proposeFocusLockOffset(_ offset: CGFloat, block: (CGFloat, CGFloat) -> Void) {
+        let oldValue = focusLockOffset
         focusLockOffset = offset
-        return offset
+        block(oldValue, offset)
     }
 
     /// Cached (top) inset to position the highlighter.

@@ -29,7 +29,6 @@ struct OverscrollConfiguration {
 protocol TypewriterMode {
 
     var configuration: OverscrollConfiguration { get }
-    var focusLockOffset: CGFloat { get }
     func adjustOverscrolling(containerSize size: NSSize, lineHeight: CGFloat)
     func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint
 }
@@ -41,8 +40,7 @@ extension TypewriterMode {
 }
 
 protocol FlexibleTypewriterMode: TypewriterMode {
-    /// - returns: Adjusted `offset` that will be used as focus lock.
-    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat
+    func proposeFocusLockOffset(_ offset: CGFloat, block: (_ newLock: CGFloat, _ oldLock: CGFloat) -> Void)
 }
 
 protocol DrawsTypewriterLineHighlight {

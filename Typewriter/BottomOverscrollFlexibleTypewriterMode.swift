@@ -6,11 +6,12 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypew
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
-    private(set) var focusLockOffset: CGFloat = 0
+    private var focusLockOffset: CGFloat = 0
 
-    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat {
+    func proposeFocusLockOffset(_ offset: CGFloat, block: (CGFloat, CGFloat) -> Void) {
+        let oldValue = focusLockOffset
         focusLockOffset = offset
-        return offset
+        block(oldValue, offset)
     }
 
     func adjustOverscrolling(

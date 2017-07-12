@@ -15,21 +15,20 @@ class TypewriterTextView: NSTextView {
     /// Amount of pixels to nudge the text up to be flush with the top edge.
     private var overscrollTopInset: CGFloat { return typewriterMode?.configuration.overscrollTopOffset ?? 0 }
     private var textOriginInset: CGFloat { return typewriterMode?.configuration.textOriginInset ?? 0 }
-    private var focusLockOffset: CGFloat { return typewriterMode?.focusLockOffset ?? 0 }
 
     func proposeFocusLockOffset(_ offset: CGFloat) {
 
         guard let flexibleTypewriterMode = typewriterMode as? FlexibleTypewriterMode else { return }
 
-        let oldValue = focusLockOffset
-        let newValue = flexibleTypewriterMode.proposeFocusLockOffset(offset)
+        flexibleTypewriterMode.proposeFocusLockOffset(offset) { newValue, oldValue in
 
-        guard newValue != oldValue else { return }
+            guard newValue != oldValue else { return }
 
-        let difference = newValue - oldValue
-        self.typewriterScroll(by: difference)
-        self.fixInsertionPointPosition()
-        self.moveHighlight(by: difference)
+            let difference = newValue - oldValue
+            self.typewriterScroll(by: difference)
+            self.fixInsertionPointPosition()
+            self.moveHighlight(by: difference)
+        }
     }
 
     /// Cache to prevent coordinate conversion
