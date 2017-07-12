@@ -7,22 +7,22 @@ struct OverscrollConfiguration {
     static var zero: OverscrollConfiguration {
         return OverscrollConfiguration(
             textContainerInset: NSSize.zero,
-            textOriginOffset: 0,
-            overscrollTopFlush: 0)
+            textOriginInset: 0,
+            overscrollTopOffset: 0)
     }
 
     var textContainerInset: NSSize
-    var textOriginOffset: CGFloat
-    var overscrollTopFlush: CGFloat
+    var textOriginInset: CGFloat
+    var overscrollTopOffset: CGFloat
 
     init(
         textContainerInset: NSSize,
-        textOriginOffset: CGFloat,
-        overscrollTopFlush: CGFloat) {
+        textOriginInset: CGFloat,
+        overscrollTopOffset: CGFloat) {
 
         self.textContainerInset = textContainerInset
-        self.textOriginOffset = textOriginOffset
-        self.overscrollTopFlush = overscrollTopFlush
+        self.textOriginInset = textOriginInset
+        self.overscrollTopOffset = overscrollTopOffset
     }
 }
 

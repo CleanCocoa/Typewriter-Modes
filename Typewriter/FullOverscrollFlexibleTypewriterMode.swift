@@ -17,7 +17,7 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
 
     private(set) var focusLockOffset: CGFloat = 0 {
         didSet {
-            configuration.textOriginOffset = focusLockOffset
+            configuration.textOriginInset = focusLockOffset
         }
     }
 
@@ -37,7 +37,7 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
             // magic extra offset to ensure the last line is fully visible at 100% overscrolling
             - 2 * heightProportion
         configuration.textContainerInset = NSSize(width: 0, height: screenPortion)
-        configuration.overscrollTopFlush = 0
+        configuration.overscrollTopOffset = 0
 
         self.overscrollInset = screenPortion
     }

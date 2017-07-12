@@ -17,7 +17,7 @@ class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
 
         // Put focus lock 20% above the center
         let topFlush = rect.height * 0.2
-        configuration.overscrollTopFlush = topFlush
+        configuration.overscrollTopOffset = topFlush
         self.focusLockOffset = halfScreen - topFlush
     }
 

@@ -19,7 +19,7 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypew
 
         let halfScreen = floor((rect.height - lineHeight) / 2)
         configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
-        configuration.overscrollTopFlush = halfScreen
+        configuration.overscrollTopOffset = halfScreen
     }
 
     func typewriterScrolled(_ point: NSPoint) -> NSPoint {
