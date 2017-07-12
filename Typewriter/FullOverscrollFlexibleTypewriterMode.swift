@@ -2,7 +2,15 @@
 
 import AppKit
 
-class CenteredOverscrollFlexibleTypewriterMode: TypewriterMode {
+/// Overscrolls in both directions.
+class FullOverscrollFlexibleTypewriterMode: TypewriterMode {
+
+    let heightProportion: CGFloat
+
+    /// - parameter heightProportion: Normalized fraction of te screen to overscroll. Defaults to `1.0`.
+    init(heightProportion: CGFloat = 1.0) {
+        self.heightProportion = max(0.0, min(heightProportion, 1.0))
+    }
 
     var highlight: NSRect {
         set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: focusLockOffset) }
@@ -32,17 +40,19 @@ class CenteredOverscrollFlexibleTypewriterMode: TypewriterMode {
         }
     }
 
+    /// Cached (top) inset to position the highlighter.
     private var overscrollInset: CGFloat = 0
 
     func adjustOverscrolling(
         containerBounds rect: NSRect,
         lineHeight: CGFloat) {
 
-        let halfScreen = floor((rect.height - lineHeight) / 2)
-        configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
+        let screenPortion = floor((rect.height - lineHeight) * heightProportion)
+            - 2 * heightProportion // magic extra offset to ensure the last line is fully visible at 100% overscrolling
+        configuration.textContainerInset = NSSize(width: 0, height: screenPortion)
         configuration.overscrollTopFlush = 0
 
-        self.overscrollInset = halfScreen
+        self.overscrollInset = screenPortion
     }
 
     func typewriterScrolled(_ point: NSPoint) -> NSPoint {

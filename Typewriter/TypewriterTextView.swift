@@ -4,7 +4,7 @@ import AppKit
 
 class TypewriterTextView: NSTextView {
 
-    var typewriterMode: TypewriterMode? = CenteredOverscrollFlexibleTypewriterMode()
+    var typewriterMode: TypewriterMode? = FullOverscrollFlexibleTypewriterMode(heightProportion: 1)
 //    var typewriterMode: TypewriterMode? = BottomOverscrollFlexibleTypewriterMode()
 
     var isDrawingTypingHighlight = true
