@@ -77,7 +77,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
         // a good idea to keep this useless replacement during development.
         textView.textContainer?.replaceLayoutManager(NSLayoutManager())
 
-        textView.string = try! String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))
+        textView.string = (try? String(contentsOf: URL(fileURLWithPath: "/Users/ctm/Archiv/§ O reswift.md"))) ?? ""
 
         scrollView.addObserver(self, forKeyPath: "frame", options: [.new, .initial], context: &scrollViewContext)
     }
