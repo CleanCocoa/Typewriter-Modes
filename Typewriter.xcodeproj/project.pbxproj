@@ -10,6 +10,7 @@
 		5086C1BF1F15FAEA007A2D75 /* TypewriterMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5086C1BE1F15FAEA007A2D75 /* TypewriterMode.swift */; };
 		5086C1C11F15FB05007A2D75 /* BottomOverscrollFlexibleTypewriterMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5086C1C01F15FB05007A2D75 /* BottomOverscrollFlexibleTypewriterMode.swift */; };
 		5086C1C31F15FBC0007A2D75 /* FullOverscrollFlexibleTypewriterMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5086C1C21F15FBC0007A2D75 /* FullOverscrollFlexibleTypewriterMode.swift */; };
+		5086C1C51F1611DB007A2D75 /* FixedTypewriterMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5086C1C41F1611DB007A2D75 /* FixedTypewriterMode.swift */; };
 		50CBA4801F0A35760092E8ED /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50CBA47F1F0A35760092E8ED /* AppDelegate.swift */; };
 		50CBA4821F0A35760092E8ED /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50CBA4811F0A35760092E8ED /* ViewController.swift */; };
 		50CBA4841F0A35760092E8ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 50CBA4831F0A35760092E8ED /* Assets.xcassets */; };
@@ -22,6 +23,7 @@
 		5086C1BE1F15FAEA007A2D75 /* TypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypewriterMode.swift; sourceTree = "<group>"; };
 		5086C1C01F15FB05007A2D75 /* BottomOverscrollFlexibleTypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomOverscrollFlexibleTypewriterMode.swift; sourceTree = "<group>"; };
 		5086C1C21F15FBC0007A2D75 /* FullOverscrollFlexibleTypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullOverscrollFlexibleTypewriterMode.swift; sourceTree = "<group>"; };
+		5086C1C41F1611DB007A2D75 /* FixedTypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FixedTypewriterMode.swift; sourceTree = "<group>"; };
 		50CBA47C1F0A35760092E8ED /* Typewriter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Typewriter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50CBA47F1F0A35760092E8ED /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		50CBA4811F0A35760092E8ED /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -67,6 +69,7 @@
 				50EE35311F0CE5C500918B01 /* TypewriterTextStorage.swift */,
 				50EE35331F0CE5F600918B01 /* TypewriterTextView.swift */,
 				5086C1BE1F15FAEA007A2D75 /* TypewriterMode.swift */,
+				5086C1C41F1611DB007A2D75 /* FixedTypewriterMode.swift */,
 				5086C1C01F15FB05007A2D75 /* BottomOverscrollFlexibleTypewriterMode.swift */,
 				5086C1C21F15FBC0007A2D75 /* FullOverscrollFlexibleTypewriterMode.swift */,
 				50CBA4831F0A35760092E8ED /* Assets.xcassets */,
@@ -148,6 +151,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5086C1C51F1611DB007A2D75 /* FixedTypewriterMode.swift in Sources */,
 				5086C1C11F15FB05007A2D75 /* BottomOverscrollFlexibleTypewriterMode.swift in Sources */,
 				50CBA4821F0A35760092E8ED /* ViewController.swift in Sources */,
 				5086C1C31F15FBC0007A2D75 /* FullOverscrollFlexibleTypewriterMode.swift in Sources */,
