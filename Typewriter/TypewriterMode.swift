@@ -2,9 +2,28 @@
 
 import Foundation
 
-protocol OverscrollConfigurable: class {
-    var textContainerInset: NSSize { get set }
-    var overscrollTopFlush: CGFloat { get set }
+struct OverscrollConfiguration {
+    
+    static var zero: OverscrollConfiguration {
+        return OverscrollConfiguration(
+            textContainerInset: NSSize.zero,
+            textOriginOffset: 0,
+            overscrollTopFlush: 0)
+    }
+
+    var textContainerInset: NSSize
+    var textOriginOffset: CGFloat
+    var overscrollTopFlush: CGFloat
+
+    init(
+        textContainerInset: NSSize,
+        textOriginOffset: CGFloat,
+        overscrollTopFlush: CGFloat) {
+
+        self.textContainerInset = textContainerInset
+        self.textOriginOffset = textOriginOffset
+        self.overscrollTopFlush = overscrollTopFlush
+    }
 }
 
 protocol TypewriterMode {
@@ -14,8 +33,9 @@ protocol TypewriterMode {
     func moveHighlight(rect: NSRect)
     func drawHighlight(in rect: NSRect)
 
+    var configuration: OverscrollConfiguration { get }
     var focusLockOffset: CGFloat { get set }
-    func adjustOverscrolling(configurable: OverscrollConfigurable, containerBounds rect: NSRect, lineHeight: CGFloat)
+    func adjustOverscrolling(containerBounds rect: NSRect, lineHeight: CGFloat)
     func typewriterScrolled(_ point: NSPoint) -> NSPoint
 }
 

@@ -2,9 +2,10 @@
 
 import AppKit
 
-class TypewriterTextView: NSTextView, OverscrollConfigurable {
+class TypewriterTextView: NSTextView {
 
-    var typewriterMode: TypewriterMode? = BottomOverscrollFlexibleTypewriterMode()
+    var typewriterMode: TypewriterMode? = CenteredOverscrollFlexibleTypewriterMode()
+//    var typewriterMode: TypewriterMode? = BottomOverscrollFlexibleTypewriterMode()
 
     var isDrawingTypingHighlight = true
 
@@ -24,8 +25,7 @@ class TypewriterTextView: NSTextView, OverscrollConfigurable {
     func moveHighlight(rectInTextView rect: NSRect) {
         guard let rectInSuperview = self.superview?
             .convert(rect, from: self) else { return }
-        moveHighlight(rect: rectInSuperview
-            .offsetBy(dx: 0, dy: 0))
+        moveHighlight(rect: rectInSuperview)
     }
 
     private func moveHighlight(rect: NSRect) {
@@ -85,20 +85,26 @@ class TypewriterTextView: NSTextView, OverscrollConfigurable {
         self.needsDisplay = true
     }
 
-    /// Amount of pixels to nudge the text up so it's flush with the top edge.
-    var overscrollTopFlush: CGFloat = 0
+    /// Amount of pixels to nudge the text up to be flush with the top edge.
+    var overscrollTopFlush: CGFloat {
+        return typewriterMode?.configuration.overscrollTopFlush ?? 0
+    }
+    var textOriginOffset: CGFloat {
+        return typewriterMode?.configuration.textOriginOffset ?? 0
+    }
 
     override var textContainerOrigin: NSPoint {
         let origin = super.textContainerOrigin
-        return origin.applying(.init(translationX: 0, y: -overscrollTopFlush))
+        return origin.applying(.init(translationX: 0, y: textOriginOffset - overscrollTopFlush))
     }
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
 
-        typewriterMode?.adjustOverscrolling(
-            configurable: self,
+        guard let typewriterMode = self.typewriterMode else { return }
+        typewriterMode.adjustOverscrolling(
             containerBounds: scrollView.bounds, // TODO: .contentView.documentVisibleRect ??
             lineHeight: self.lineHeight)
+        self.textContainerInset = typewriterMode.configuration.textContainerInset
     }
 
     var lineHeight: CGFloat {

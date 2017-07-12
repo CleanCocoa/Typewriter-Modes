@@ -19,16 +19,17 @@ class BottomOverscrollFlexibleTypewriterMode: TypewriterMode {
         highlight = NSRect.zero
     }
 
+    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
+
     var focusLockOffset: CGFloat = 0
 
     func adjustOverscrolling(
-        configurable: OverscrollConfigurable,
         containerBounds rect: NSRect,
         lineHeight: CGFloat) {
 
         let halfScreen = floor((rect.height - lineHeight) / 2)
-        configurable.textContainerInset = NSSize(width: 0, height: halfScreen)
-        configurable.overscrollTopFlush = halfScreen
+        configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
+        configuration.overscrollTopFlush = halfScreen
     }
 
     func typewriterScrolled(_ point: NSPoint) -> NSPoint {
