@@ -21,11 +21,6 @@ class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
         self.focusLockOffset = halfScreen - topFlush
     }
 
-    func typewriterScrolled(_ point: NSPoint) -> NSPoint {
-
-        return point
-    }
-
     
     // MARK: - Typewriter Highlight
 

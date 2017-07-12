@@ -2,16 +2,12 @@
 
 import AppKit
 
-class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewriterLineHighlight {
+class FinalFantasyTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
-    private(set) var focusLockOffset: CGFloat = 0
-
-    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat {
-        focusLockOffset = offset
-        return offset
-    }
+    private var threshold: CGFloat = 0
+    var focusLockOffset: CGFloat { return threshold }
 
     func adjustOverscrolling(
         containerSize size: NSSize,
@@ -20,11 +16,19 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypew
         let halfScreen = floor((size.height - lineHeight) / 2)
         configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
         configuration.overscrollTopOffset = halfScreen
+
+        // Put focus lock threshold at 60% down the view
+        self.threshold = size.height * 0.6
     }
 
     func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
 
-        return point.applying(.init(translationX: 0, y: -focusLockOffset))
+        let currentY = scrollPosition.y
+        let insertionY = point.y
+
+        guard insertionY > currentY + threshold else { return scrollPosition }
+
+        return point.applying(.init(translationX: 0, y: -threshold))
     }
 
 

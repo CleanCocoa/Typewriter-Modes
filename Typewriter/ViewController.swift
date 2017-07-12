@@ -15,12 +15,14 @@ enum TypewriterModeSetting {
     case fixed
     case overscrollFlexible
     case bottomOverscrollFlexible
+    case finalFantasy
 
     var typewriterMode: TypewriterMode {
         switch self {
         case .fixed: return FixedTypewriterMode()
         case .overscrollFlexible: return FullOverscrollFlexibleTypewriterMode(heightProportion: 1)
         case .bottomOverscrollFlexible: return BottomOverscrollFlexibleTypewriterMode()
+        case .finalFantasy: return FinalFantasyTypewriterMode()
         }
     }
 
@@ -29,6 +31,7 @@ enum TypewriterModeSetting {
         case 1: self = .fixed
         case 2: self = .overscrollFlexible
         case 3: self = .bottomOverscrollFlexible
+        case 4: self = .finalFantasy
         default: return nil
         }
     }

@@ -42,12 +42,6 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
         self.overscrollInset = screenPortion
     }
 
-    func typewriterScrolled(_ point: NSPoint) -> NSPoint {
-
-        // Container inset includes adding an offset to the scrolled point automatically.
-        return point
-    }
-
     
     // MARK: - Typewriter Highlight
 

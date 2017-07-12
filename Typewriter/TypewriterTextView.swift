@@ -103,8 +103,10 @@ class TypewriterTextView: NSTextView {
 
     func typewriterScroll(to point: NSPoint) {
 
-        guard let scrolledPoint = typewriterMode?.typewriterScrolled(point) else { return }
-        self.enclosingScrollView?.contentView.bounds.origin = scrolledPoint
+        guard let enclosingScrollView = self.enclosingScrollView else { return }
+        let scrollPosition = enclosingScrollView.contentView.bounds.origin
+        guard let scrolledPoint = typewriterMode?.typewriterScrolled(convertPoint: point, scrollPosition: scrollPosition) else { return }
+        enclosingScrollView.contentView.bounds.origin = scrolledPoint
     }
 
 

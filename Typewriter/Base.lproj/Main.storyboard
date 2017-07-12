@@ -617,6 +617,11 @@
                                                 <action selector="changeTypewriterMode:" target="Ady-hI-5gd" id="jKg-gf-90d"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Final Fantasy Typewriter Mode" tag="4" keyEquivalent="4" id="JMC-bD-kDP">
+                                            <connections>
+                                                <action selector="changeTypewriterMode:" target="Ady-hI-5gd" id="Xn4-ct-APy"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
                                         <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
