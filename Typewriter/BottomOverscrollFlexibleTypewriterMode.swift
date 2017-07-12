@@ -2,7 +2,7 @@
 
 import AppKit
 
-class BottomOverscrollFlexibleTypewriterMode: TypewriterMode {
+class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode {
 
     var highlight: NSRect = NSRect.zero
 
@@ -21,7 +21,12 @@ class BottomOverscrollFlexibleTypewriterMode: TypewriterMode {
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
-    var focusLockOffset: CGFloat = 0
+    private(set) var focusLockOffset: CGFloat = 0
+
+    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat {
+        focusLockOffset = offset
+        return offset
+    }
 
     func adjustOverscrolling(
         containerBounds rect: NSRect,

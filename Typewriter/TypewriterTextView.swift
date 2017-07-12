@@ -40,24 +40,30 @@ class TypewriterTextView: NSTextView {
     }
 
     private var focusLockOffset: CGFloat {
-        get { return typewriterMode?.focusLockOffset ?? 0 }
-        set {
-            let oldValue = focusLockOffset
-            typewriterMode?.focusLockOffset = newValue
+        return typewriterMode?.focusLockOffset ?? 0
+    }
 
-            guard newValue != oldValue else { return }
+    func proposeFocusLockOffset(_ offset: CGFloat) {
 
-            let difference = focusLockOffset - oldValue
-            self.typewriterScroll(by: difference)
-            self.fixInsertionPointPosition()
-            self.moveHighlight(by: difference)
-        }
+        guard let flexibleTypewriterMode = typewriterMode as? FlexibleTypewriterMode else { return }
+
+        let oldValue = focusLockOffset
+        let newValue = flexibleTypewriterMode.proposeFocusLockOffset(offset)
+
+        guard newValue != oldValue else { return }
+
+        let difference = newValue - oldValue
+        self.typewriterScroll(by: difference)
+        self.fixInsertionPointPosition()
+        self.moveHighlight(by: difference)
     }
 
     /// Cache to prevent coordinate conversion
     private var lastInsertionPointY: CGFloat?
 
     func lockTypewriterDistance() {
+
+        guard typewriterMode is FlexibleTypewriterMode else { return }
 
         let screenInsertionPointRect = firstRect(forCharacterRange: selectedRange(), actualRange: nil)
         guard screenInsertionPointRect.origin.y != lastInsertionPointY else { return }
@@ -70,12 +76,12 @@ class TypewriterTextView: NSTextView {
         let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
         let newOffset = ceil(-(textContainerInset.height - overscrollTopFlush) + distance)
 
-        self.focusLockOffset = newOffset
+        self.proposeFocusLockOffset(newOffset)
     }
 
     func unlockTypewriterDistance() {
 
-        self.focusLockOffset = 0
+        self.proposeFocusLockOffset(0)
         self.lastInsertionPointY = nil
     }
 

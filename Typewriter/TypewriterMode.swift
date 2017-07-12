@@ -34,7 +34,7 @@ protocol TypewriterMode {
     func drawHighlight(in rect: NSRect)
 
     var configuration: OverscrollConfiguration { get }
-    var focusLockOffset: CGFloat { get set }
+    var focusLockOffset: CGFloat { get }
     func adjustOverscrolling(containerBounds rect: NSRect, lineHeight: CGFloat)
     func typewriterScrolled(_ point: NSPoint) -> NSPoint
 }
@@ -43,4 +43,9 @@ extension TypewriterMode {
     func hideHighlight() {
         moveHighlight(rect: NSRect.zero)
     }
+}
+
+protocol FlexibleTypewriterMode: TypewriterMode {
+    /// - returns: Adjusted `offset` that will be used as focus lock.
+    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat
 }

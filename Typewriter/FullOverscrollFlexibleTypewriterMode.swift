@@ -3,7 +3,7 @@
 import AppKit
 
 /// Overscrolls in both directions.
-class FullOverscrollFlexibleTypewriterMode: TypewriterMode {
+class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode {
 
     let heightProportion: CGFloat
 
@@ -34,10 +34,15 @@ class FullOverscrollFlexibleTypewriterMode: TypewriterMode {
 
     var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
-    var focusLockOffset: CGFloat = 0 {
+    private(set) var focusLockOffset: CGFloat = 0 {
         didSet {
             configuration.textOriginOffset = focusLockOffset
         }
+    }
+
+    func proposeFocusLockOffset(_ offset: CGFloat) -> CGFloat {
+        focusLockOffset = offset
+        return offset
     }
 
     /// Cached (top) inset to position the highlighter.
