@@ -182,9 +182,19 @@ func insertionPointLineRect(textView: NSTextView, layoutManager: NSLayoutManager
             extraLineFragmentRect.origin.y >= 0 {
             return layoutManager.extraLineFragmentRect
         }
+
+        // Sometimes, `extraLineFragmentRect` is .zero but you did just hit return ¯\_(ツ)_/¯
+        if textView.string?.characters.last == "\n" {
+            let lineRect = lineFragmentRect(location: location, layoutManager: layoutManager)
+            return lineRect.offsetBy(dx: 0, dy: lineRect.height)
+        }
     }
 
-    let insertionPointGlyphIndex = min(location, layoutManager.numberOfGlyphs - 1)
+    return lineFragmentRect(location: location, layoutManager: layoutManager)
+}
 
+func lineFragmentRect(location: Int, layoutManager: NSLayoutManager) -> NSRect {
+
+    let insertionPointGlyphIndex = min(location, layoutManager.numberOfGlyphs - 1)
     return layoutManager.lineFragmentRect(forGlyphAt: insertionPointGlyphIndex, effectiveRange: nil)
 }
