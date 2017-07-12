@@ -10,28 +10,56 @@ import Cocoa
 
 var scrollViewContext: Void?
 
+enum TypewriterModeSetting {
+
+    case fixed
+    case overscrollFlexible
+    case bottomOverscrollFlexible
+
+    var typewriterMode: TypewriterMode {
+        switch self {
+        case .fixed: return FixedTypewriterMode()
+        case .overscrollFlexible: return FullOverscrollFlexibleTypewriterMode(heightProportion: 1)
+        case .bottomOverscrollFlexible: return BottomOverscrollFlexibleTypewriterMode()
+        }
+    }
+
+    init?(fromTag tag: Int) {
+        switch tag {
+        case 1: self = .fixed
+        case 2: self = .overscrollFlexible
+        case 3: self = .bottomOverscrollFlexible
+        default: return nil
+        }
+    }
+}
+
 class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextStorageDelegate, NSTextViewDelegate {
 
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var clipView: NSClipView!
     @IBOutlet var textView: TypewriterTextView!
 
-    var isInTypewriterMode = false {
+    var typewriterModeSetting: TypewriterModeSetting? {
         didSet {
+            textView.typewriterMode = typewriterModeSetting?.typewriterMode
+
             if isInTypewriterMode {
                 textView.lockTypewriterDistance()
                 alignScrollingToInsertionPoint()
-                textView.needsDisplay = true
             } else {
                 textView.unlockTypewriterDistance()
                 textView.hideHighlight()
-                textView.needsDisplay = true
             }
+
+            textView.needsDisplay = true
         }
     }
+    var isInTypewriterMode: Bool { return typewriterModeSetting != nil }
 
-    @IBAction func toggleTypewriterMode(_ sender: Any?) {
-        isInTypewriterMode = !isInTypewriterMode
+    @IBAction func changeTypewriterMode(_ sender: Any?) {
+        guard let menuItem = sender as? NSMenuItem else { return }
+        self.typewriterModeSetting = TypewriterModeSetting(fromTag: menuItem.tag)
     }
 
     override func viewDidLoad() {
@@ -66,7 +94,7 @@ class ViewController: NSViewController, NSTextStorageDelegate, TypewriterTextSto
     }
 
     func scrollViewDidResize(_ scrollView: NSScrollView) {
-        textView.scrollViewDidResize(scrollView)
+        textView.relayoutTypewriterMode(scrollView: scrollView)
     }
 
     // MARK: - Typewriter Scrolling

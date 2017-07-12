@@ -597,10 +597,24 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="x9G-6f-bIC"/>
-                                        <menuItem title="Toggle Typewriter Mode" keyEquivalent="t" id="cog-vf-I9y">
-                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                        <menuItem title="Disable Typewriter Mode" keyEquivalent="0" id="cog-vf-I9y">
                                             <connections>
-                                                <action selector="toggleTypewriterMode:" target="Ady-hI-5gd" id="V5Z-H7-ky7"/>
+                                                <action selector="changeTypewriterMode:" target="Ady-hI-5gd" id="Thb-ns-S6X"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Fixed Typewriter Mode" tag="1" keyEquivalent="1" id="yDe-u4-pib">
+                                            <connections>
+                                                <action selector="changeTypewriterMode:" target="Ady-hI-5gd" id="g2e-yC-zxE"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Flexible Typewriter Mode" tag="2" keyEquivalent="2" id="LNF-Qu-dqT">
+                                            <connections>
+                                                <action selector="changeTypewriterMode:" target="Ady-hI-5gd" id="Dzb-7X-rN4"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Bottom-Overscroll Flexible Typewriter Mode" tag="3" keyEquivalent="3" id="gpj-DV-uYX">
+                                            <connections>
+                                                <action selector="changeTypewriterMode:" target="Ady-hI-5gd" id="jKg-gf-90d"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>

@@ -4,9 +4,13 @@ import AppKit
 
 class TypewriterTextView: NSTextView {
 
-    var typewriterMode: TypewriterMode? = FixedTypewriterMode()
-//    var typewriterMode: TypewriterMode? = FullOverscrollFlexibleTypewriterMode(heightProportion: 1)
-//    var typewriterMode: TypewriterMode? = BottomOverscrollFlexibleTypewriterMode()
+    var typewriterMode: TypewriterMode? = nil {
+        didSet {
+            guard let scrollView = self.enclosingScrollView else { return }
+            relayoutTypewriterMode(scrollView: scrollView)
+            fixInsertionPointPosition()
+        }
+    }
 
     /// Amount of pixels to nudge the text up to be flush with the top edge.
     private var overscrollTopInset: CGFloat { return typewriterMode?.configuration.overscrollTopOffset ?? 0 }
@@ -67,13 +71,18 @@ class TypewriterTextView: NSTextView {
         return origin.applying(.init(translationX: 0, y: textOriginInset - overscrollTopInset))
     }
 
-    func scrollViewDidResize(_ scrollView: NSScrollView) {
+    func relayoutTypewriterMode(scrollView: NSScrollView) {
 
-        guard let typewriterMode = self.typewriterMode else { return }
+        guard let typewriterMode = self.typewriterMode else {
+            self.textContainerInset = .zero
+            return
+        }
+
         typewriterMode.adjustOverscrolling(
             containerBounds: scrollView.bounds, // TODO: .contentView.documentVisibleRect ??
             lineHeight: self.lineHeight)
         self.textContainerInset = typewriterMode.configuration.textContainerInset
+        // TODO: scroll view does not update content height until resizing the window or typing something
     }
 
     var lineHeight: CGFloat {
