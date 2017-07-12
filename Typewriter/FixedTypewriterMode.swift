@@ -9,14 +9,14 @@ class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
     private(set) var focusLockOffset: CGFloat = 0
 
     func adjustOverscrolling(
-        containerBounds rect: NSRect,
+        containerSize size: NSSize,
         lineHeight: CGFloat) {
 
-        let halfScreen = floor((rect.height - lineHeight) / 2)
+        let halfScreen = floor((size.height - lineHeight) / 2)
         configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
 
         // Put focus lock 20% above the center
-        let topFlush = rect.height * 0.2
+        let topFlush = size.height * 0.2
         configuration.overscrollTopOffset = topFlush
         self.focusLockOffset = halfScreen - topFlush
     }

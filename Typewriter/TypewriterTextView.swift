@@ -79,7 +79,7 @@ class TypewriterTextView: NSTextView {
         }
 
         typewriterMode.adjustOverscrolling(
-            containerBounds: scrollView.bounds, // TODO: .contentView.documentVisibleRect ??
+            containerSize: scrollView.contentView.documentVisibleRect.size,
             lineHeight: self.lineHeight)
         self.textContainerInset = typewriterMode.configuration.textContainerInset
         // TODO: scroll view does not update content height until resizing the window or typing something

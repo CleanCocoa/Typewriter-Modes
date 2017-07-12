@@ -14,10 +14,10 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypew
     }
 
     func adjustOverscrolling(
-        containerBounds rect: NSRect,
+        containerSize size: NSSize,
         lineHeight: CGFloat) {
 
-        let halfScreen = floor((rect.height - lineHeight) / 2)
+        let halfScreen = floor((size.height - lineHeight) / 2)
         configuration.textContainerInset = NSSize(width: 0, height: halfScreen)
         configuration.overscrollTopOffset = halfScreen
     }

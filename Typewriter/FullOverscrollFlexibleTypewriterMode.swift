@@ -30,10 +30,10 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
     private var overscrollInset: CGFloat = 0
 
     func adjustOverscrolling(
-        containerBounds rect: NSRect,
+        containerSize size: NSSize,
         lineHeight: CGFloat) {
 
-        let screenPortion = floor((rect.height - lineHeight) * heightProportion)
+        let screenPortion = floor((size.height - lineHeight) * heightProportion)
             // magic extra offset to ensure the last line is fully visible at 100% overscrolling
             - 2 * heightProportion
         configuration.textContainerInset = NSSize(width: 0, height: screenPortion)
