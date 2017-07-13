@@ -8,7 +8,6 @@ class TypewriterTextView: NSTextView {
         didSet {
             guard let scrollView = self.enclosingScrollView else { return }
             relayoutTypewriterMode(scrollView: scrollView)
-            fixInsertionPointPosition()
         }
     }
 
@@ -117,6 +116,9 @@ class TypewriterTextView: NSTextView {
         let scrollPosition = enclosingScrollView.contentView.bounds.origin
         guard let scrolledPoint = typewriterMode?.typewriterScrolled(convertPoint: point, scrollPosition: scrollPosition) else { return }
         enclosingScrollView.contentView.bounds.origin = scrolledPoint
+
+        // Fix jagged scrolling artifacts
+        self.needsDisplay = true
     }
 
 
