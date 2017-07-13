@@ -12,8 +12,8 @@ class TypewriterTextView: NSTextView {
         }
     }
 
-    /// Amount of pixels to nudge the text up to be flush with the top edge.
-    private var overscrollTopInset: CGFloat { return typewriterMode?.configuration.overscrollTopOffset ?? 0 }
+    /// Amount of pixels to nudge the text up, e.g. to be flush with the top edge.
+    private var overscrollTopOffset: CGFloat { return typewriterMode?.configuration.overscrollTopOffset ?? 0 }
     private var textOriginInset: CGFloat { return typewriterMode?.configuration.textOriginInset ?? 0 }
 
     func proposeFocusLockOffset(_ offset: CGFloat) {
@@ -46,8 +46,11 @@ class TypewriterTextView: NSTextView {
         guard let enclosingScrollView = self.enclosingScrollView else { return }
 
         let insertionPointRect = enclosingScrollView.convert(windowInsertionPointRect, from: nil)
-        let distance = insertionPointRect.origin.y - enclosingScrollView.frame.origin.y - enclosingScrollView.contentView.frame.origin.y
-        let newOffset = ceil(-(textContainerInset.height - overscrollTopInset) + distance)
+        let distance = insertionPointRect.origin.y
+            - enclosingScrollView.frame.origin.y
+            // Take care of scroll view borders and content insets
+            - enclosingScrollView.contentView.frame.origin.y
+        let newOffset = ceil(-(textContainerInset.height - overscrollTopOffset) + distance)
 
         self.proposeFocusLockOffset(newOffset)
     }
@@ -67,10 +70,12 @@ class TypewriterTextView: NSTextView {
 
     override var textContainerOrigin: NSPoint {
         let origin = super.textContainerOrigin
-        return origin.applying(.init(translationX: 0, y: textOriginInset - overscrollTopInset))
+        return origin.applying(.init(translationX: 0, y: textOriginInset - overscrollTopOffset))
     }
 
     func relayoutTypewriterMode(scrollView: NSScrollView) {
+
+        defer { forceLayoutWithNewInsets() }
 
         guard let typewriterMode = self.typewriterMode else {
             self.textContainerInset = .zero
@@ -81,7 +86,13 @@ class TypewriterTextView: NSTextView {
             containerSize: scrollView.contentView.documentVisibleRect.size,
             lineHeight: self.lineHeight)
         self.textContainerInset = typewriterMode.configuration.textContainerInset
-        // TODO: scroll view does not update content height until resizing the window or typing something
+    }
+
+    /// Sends an "edited" message to the layout manager to make it adjust the size
+    /// to fit the `textContainerInset`. Without doing this, it'll take until after
+    /// the next edit by the user.
+    private func forceLayoutWithNewInsets() {
+        self.textStorage?.edited(.editedAttributes, range: selectedRange(), changeInLength: 0)
     }
 
     var lineHeight: CGFloat {
