@@ -2,7 +2,7 @@
 
 import AppKit
 
-class CustomTextStorageBase: NSTextStorage {
+public class CustomTextStorageBase: NSTextStorage {
 
     internal let content = NSTextStorage()
 
@@ -33,24 +33,16 @@ fileprivate extension String {
     }
 }
 
-protocol TypewriterTextStorageDelegate: class {
+public protocol TypewriterTextStorageDelegate: class {
     /// Called to notify about the end of `endEditing()`.
     func typewriterTextStorageDidEndEditing(_ typewriterTextStorage: TypewriterTextStorage)
 }
 
-class TypewriterTextStorage: CustomTextStorageBase {
+public class TypewriterTextStorage: CustomTextStorageBase {
 
-    weak var typewriterDelegate: TypewriterTextStorageDelegate?
+    public weak var typewriterDelegate: TypewriterTextStorageDelegate?
 
-    override func beginEditing() {
-        super.beginEditing()
-    }
-
-    override func processEditing() {
-        super.processEditing()
-    }
-
-    override func endEditing() {
+    public override func endEditing() {
         super.endEditing()
         typewriterDelegate?.typewriterTextStorageDidEndEditing(self)
     }

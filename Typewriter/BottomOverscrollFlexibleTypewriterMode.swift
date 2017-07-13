@@ -2,19 +2,21 @@
 
 import AppKit
 
-class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewriterLineHighlight {
+public class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewriterLineHighlight {
 
-    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
+    public init() { }
+
+    private(set) public var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
     private var focusLockOffset: CGFloat = 0
 
-    func proposeFocusLockOffset(_ offset: CGFloat, block: (CGFloat, CGFloat) -> Void) {
+    public func proposeFocusLockOffset(_ offset: CGFloat, block: (CGFloat, CGFloat) -> Void) {
         let oldValue = focusLockOffset
         focusLockOffset = offset
         block(oldValue, offset)
     }
 
-    func adjustOverscrolling(
+    public func adjustOverscrolling(
         containerSize size: NSSize,
         lineHeight: CGFloat) {
 
@@ -23,7 +25,7 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypew
         configuration.overscrollTopOffset = halfScreen
     }
 
-    func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
+    public func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
 
         return point.applying(.init(translationX: 0, y: -focusLockOffset))
     }
@@ -31,18 +33,18 @@ class BottomOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypew
 
     // MARK: - Typewriter Highlight
 
-    var highlight: NSRect = NSRect.zero
+    public var highlight: NSRect = NSRect.zero
 
-    func moveHighlight(rect: NSRect) {
+    public func moveHighlight(rect: NSRect) {
         highlight = rect
     }
 
-    func drawHighlight(in rect: NSRect) {
+    public func drawHighlight(in rect: NSRect) {
         NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
         NSRectFill(highlight)
     }
 
-    func hideHighlight() {
+    public func hideHighlight() {
         highlight = NSRect.zero
     }
 }

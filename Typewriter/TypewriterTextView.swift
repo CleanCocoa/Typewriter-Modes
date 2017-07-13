@@ -2,9 +2,9 @@
 
 import AppKit
 
-class TypewriterTextView: NSTextView {
+public class TypewriterTextView: NSTextView {
 
-    var typewriterMode: TypewriterMode? = nil {
+    public var typewriterMode: TypewriterMode? = nil {
         didSet {
             guard let scrollView = self.enclosingScrollView else { return }
             relayoutTypewriterMode(scrollView: scrollView)
@@ -15,25 +15,10 @@ class TypewriterTextView: NSTextView {
     private var overscrollTopOffset: CGFloat { return typewriterMode?.configuration.overscrollTopOffset ?? 0 }
     private var textOriginInset: CGFloat { return typewriterMode?.configuration.textOriginInset ?? 0 }
 
-    func proposeFocusLockOffset(_ offset: CGFloat) {
-
-        guard let flexibleTypewriterMode = typewriterMode as? FlexibleTypewriterMode else { return }
-
-        flexibleTypewriterMode.proposeFocusLockOffset(offset) { newValue, oldValue in
-
-            guard newValue != oldValue else { return }
-
-            let difference = newValue - oldValue
-            self.typewriterScroll(by: difference)
-            self.fixInsertionPointPosition()
-            self.moveHighlight(by: difference)
-        }
-    }
-
     /// Cache to prevent coordinate conversion
     private var lastInsertionPointY: CGFloat?
 
-    func lockTypewriterDistance() {
+    public func lockTypewriterDistance() {
 
         guard typewriterMode is FlexibleTypewriterMode else { return }
 
@@ -54,7 +39,22 @@ class TypewriterTextView: NSTextView {
         self.proposeFocusLockOffset(newOffset)
     }
 
-    func unlockTypewriterDistance() {
+    private func proposeFocusLockOffset(_ offset: CGFloat) {
+
+        guard let flexibleTypewriterMode = typewriterMode as? FlexibleTypewriterMode else { return }
+
+        flexibleTypewriterMode.proposeFocusLockOffset(offset) { newValue, oldValue in
+
+            guard newValue != oldValue else { return }
+
+            let difference = newValue - oldValue
+            self.typewriterScroll(by: difference)
+            self.fixInsertionPointPosition()
+            self.moveHighlight(by: difference)
+        }
+    }
+
+    public func unlockTypewriterDistance() {
 
         self.proposeFocusLockOffset(0)
         self.lastInsertionPointY = nil
@@ -67,12 +67,12 @@ class TypewriterTextView: NSTextView {
         self.needsDisplay = true
     }
 
-    override var textContainerOrigin: NSPoint {
+    public override var textContainerOrigin: NSPoint {
         let origin = super.textContainerOrigin
         return origin.applying(.init(translationX: 0, y: textOriginInset - overscrollTopOffset))
     }
 
-    func relayoutTypewriterMode(scrollView: NSScrollView) {
+    public func relayoutTypewriterMode(scrollView: NSScrollView) {
 
         defer { forceLayoutWithNewInsets() }
 
@@ -87,7 +87,7 @@ class TypewriterTextView: NSTextView {
         self.textContainerInset = typewriterMode.configuration.textContainerInset
     }
 
-    override var textContainerInset: NSSize {
+    public override var textContainerInset: NSSize {
         didSet {
             // Scroll so much that the text does not jump in the view when
             // adding/removing the top inset.
@@ -103,7 +103,7 @@ class TypewriterTextView: NSTextView {
         self.textStorage?.edited(.editedAttributes, range: selectedRange(), changeInLength: 0)
     }
 
-    var lineHeight: CGFloat {
+    internal var lineHeight: CGFloat {
         guard let font = self.font,
             let layoutManager = self.layoutManager
             else { return 0 }
@@ -111,7 +111,7 @@ class TypewriterTextView: NSTextView {
         return layoutManager.defaultLineHeight(for: font)
     }
 
-    func typewriterScroll(by offset: CGFloat) {
+    public func typewriterScroll(by offset: CGFloat) {
 
         guard let visibleRect = enclosingScrollView?.contentView.documentVisibleRect else { return }
         let point = visibleRect.origin
@@ -119,7 +119,7 @@ class TypewriterTextView: NSTextView {
         typewriterScroll(to: point)
     }
 
-    func typewriterScroll(to point: NSPoint) {
+    public func typewriterScroll(to point: NSPoint) {
 
         guard let enclosingScrollView = self.enclosingScrollView else { return }
         let scrollPosition = enclosingScrollView.contentView.bounds.origin
@@ -133,24 +133,24 @@ class TypewriterTextView: NSTextView {
 
     // MARK: - Typewriter Highlight
 
-    var isDrawingTypingHighlight = true
+    public var isDrawingTypingHighlight = true
 
     var highlightDrawer: DrawsTypewriterLineHighlight? { return typewriterMode as? DrawsTypewriterLineHighlight }
 
-    override func drawBackground(in rect: NSRect) {
+    public override func drawBackground(in rect: NSRect) {
         super.drawBackground(in: rect)
 
         guard isDrawingTypingHighlight else { return }
         highlightDrawer?.drawHighlight(in: rect)
     }
 
-    func hideHighlight() {
+    public func hideHighlight() {
         highlightDrawer?.hideHighlight()
     }
 
     /// Move line highlight to `rect` in terms of the text view's coordinate system.
     /// Translates `rect` to take into account the `textContainer` position.
-    func moveHighlight(rectInTextView rect: NSRect) {
+    public func moveHighlight(rectInTextView rect: NSRect) {
         guard let rectInSuperview = self.superview?
             .convert(rect, from: self) else { return }
         moveHighlight(rect: rectInSuperview)
@@ -160,8 +160,8 @@ class TypewriterTextView: NSTextView {
         guard isDrawingTypingHighlight else { return }
         highlightDrawer?.moveHighlight(rect: rect)
     }
-
-    func moveHighlight(by distance: CGFloat) {
+    
+    public func moveHighlight(by distance: CGFloat) {
         guard let highlight = highlightDrawer?.highlight else { return }
         moveHighlight(rect: highlight.offsetBy(dx: 0, dy: distance))
     }

@@ -2,13 +2,15 @@
 
 import AppKit
 
-class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
+public class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
 
-    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
+    public init() { }
+
+    private(set) public var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
     private var focusLockOffset: CGFloat = 0
 
-    func adjustOverscrolling(
+    public func adjustOverscrolling(
         containerSize size: NSSize,
         lineHeight: CGFloat) {
 
@@ -21,25 +23,25 @@ class FixedTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
         self.focusLockOffset = halfScreen - topFlush
     }
 
-    
+
     // MARK: - Typewriter Highlight
 
-    var highlight: NSRect {
+    public var highlight: NSRect {
         set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: focusLockOffset) }
         get { return highlightWithOffset.offsetBy(dx: 0, dy: -focusLockOffset) }
     }
     fileprivate var highlightWithOffset: NSRect = NSRect.zero
 
-    func moveHighlight(rect: NSRect) {
+    public func moveHighlight(rect: NSRect) {
         highlight = rect
     }
 
-    func drawHighlight(in rect: NSRect) {
+    public func drawHighlight(in rect: NSRect) {
         NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
         NSRectFill(highlightWithOffset)
     }
 
-    func hideHighlight() {
+    public func hideHighlight() {
         highlight = NSRect.zero
     }
 }

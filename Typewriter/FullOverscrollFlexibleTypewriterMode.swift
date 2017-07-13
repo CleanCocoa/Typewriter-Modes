@@ -3,17 +3,17 @@
 import AppKit
 
 /// Overscrolls in both directions.
-class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewriterLineHighlight {
+public class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewriterLineHighlight {
 
     let heightProportion: CGFloat
 
-    /// - parameter heightProportion: Normalized fraction of the screen to overscroll. 
+    /// - parameter heightProportion: Normalized fraction of the screen to overscroll.
     ///   Defaults to `1.0` (100% overscrolling).
-    init(heightProportion: CGFloat = 1.0) {
+    public init(heightProportion: CGFloat = 1.0) {
         self.heightProportion = max(0.0, min(heightProportion, 1.0))
     }
 
-    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
+    private(set) public var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
     private var focusLockOffset: CGFloat = 0 {
         didSet {
@@ -21,7 +21,7 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
         }
     }
 
-    func proposeFocusLockOffset(_ offset: CGFloat, block: (CGFloat, CGFloat) -> Void) {
+    public func proposeFocusLockOffset(_ offset: CGFloat, block: (CGFloat, CGFloat) -> Void) {
         let oldValue = focusLockOffset
         focusLockOffset = offset
         block(oldValue, offset)
@@ -30,7 +30,7 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
     /// Cached (top) inset to position the highlighter.
     private var overscrollInset: CGFloat = 0
 
-    func adjustOverscrolling(
+    public func adjustOverscrolling(
         containerSize size: NSSize,
         lineHeight: CGFloat) {
 
@@ -43,27 +43,27 @@ class FullOverscrollFlexibleTypewriterMode: FlexibleTypewriterMode, DrawsTypewri
         self.overscrollInset = screenPortion
     }
 
-    
+
     // MARK: - Typewriter Highlight
 
     fileprivate var highlightWithOffset: NSRect = NSRect.zero
 
-    var highlight: NSRect {
+    public var highlight: NSRect {
         set { highlightWithOffset = newValue.offsetBy(dx: 0, dy: focusLockOffset) }
         get { return highlightWithOffset.offsetBy(dx: 0, dy: -focusLockOffset) }
     }
 
-    func moveHighlight(rect: NSRect) {
+    public func moveHighlight(rect: NSRect) {
         highlight = rect.offsetBy(dx: 0, dy: overscrollInset)
     }
 
-    func drawHighlight(in rect: NSRect) {
+    public func drawHighlight(in rect: NSRect) {
 
         NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
         NSRectFill(highlightWithOffset)
     }
 
-    func hideHighlight() {
+    public func hideHighlight() {
         highlight = NSRect.zero
     }
 }

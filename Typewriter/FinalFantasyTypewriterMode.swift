@@ -2,13 +2,15 @@
 
 import AppKit
 
-class FinalFantasyTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
+public class FinalFantasyTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
 
-    var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
+    public init() { }
+
+    private(set) public var configuration: OverscrollConfiguration = OverscrollConfiguration.zero
 
     private var focusLockThreshold: CGFloat = 0
 
-    func adjustOverscrolling(
+    public func adjustOverscrolling(
         containerSize size: NSSize,
         lineHeight: CGFloat) {
 
@@ -20,7 +22,7 @@ class FinalFantasyTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
         self.focusLockThreshold = size.height * 0.6
     }
 
-    func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
+    public func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
 
         let currentY = scrollPosition.y
         let insertionY = point.y
@@ -33,18 +35,18 @@ class FinalFantasyTypewriterMode: TypewriterMode, DrawsTypewriterLineHighlight {
 
     // MARK: - Typewriter Highlight
 
-    var highlight: NSRect = NSRect.zero
+    public var highlight: NSRect = NSRect.zero
 
-    func moveHighlight(rect: NSRect) {
+    public func moveHighlight(rect: NSRect) {
         highlight = rect
     }
 
-    func drawHighlight(in rect: NSRect) {
+    public func drawHighlight(in rect: NSRect) {
         NSColor(calibratedRed: 1, green: 1, blue: 0, alpha: 1).set()
         NSRectFill(highlight)
     }
-
-    func hideHighlight() {
+    
+    public func hideHighlight() {
         highlight = NSRect.zero
     }
 }

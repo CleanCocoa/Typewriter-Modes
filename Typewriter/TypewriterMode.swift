@@ -2,20 +2,20 @@
 
 import Foundation
 
-struct OverscrollConfiguration {
-    
-    static var zero: OverscrollConfiguration {
+public struct OverscrollConfiguration {
+
+    public static var zero: OverscrollConfiguration {
         return OverscrollConfiguration(
             textContainerInset: NSSize.zero,
             textOriginInset: 0,
             overscrollTopOffset: 0)
     }
 
-    var textContainerInset: NSSize
-    var textOriginInset: CGFloat
-    var overscrollTopOffset: CGFloat
+    public var textContainerInset: NSSize
+    public var textOriginInset: CGFloat
+    public var overscrollTopOffset: CGFloat
 
-    init(
+    public init(
         textContainerInset: NSSize,
         textOriginInset: CGFloat,
         overscrollTopOffset: CGFloat) {
@@ -26,7 +26,7 @@ struct OverscrollConfiguration {
     }
 }
 
-protocol TypewriterMode {
+public protocol TypewriterMode {
 
     var configuration: OverscrollConfiguration { get }
     func adjustOverscrolling(containerSize size: NSSize, lineHeight: CGFloat)
@@ -34,16 +34,16 @@ protocol TypewriterMode {
 }
 
 extension TypewriterMode {
-    func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
+    public func typewriterScrolled(convertPoint point: NSPoint, scrollPosition: NSPoint) -> NSPoint {
         return point
     }
 }
 
-protocol FlexibleTypewriterMode: TypewriterMode {
+public protocol FlexibleTypewriterMode: TypewriterMode {
     func proposeFocusLockOffset(_ offset: CGFloat, block: (_ newLock: CGFloat, _ oldLock: CGFloat) -> Void)
 }
 
-protocol DrawsTypewriterLineHighlight {
+public protocol DrawsTypewriterLineHighlight {
 
     var highlight: NSRect { get }
     func hideHighlight()
@@ -52,7 +52,7 @@ protocol DrawsTypewriterLineHighlight {
 }
 
 extension DrawsTypewriterLineHighlight {
-    func hideHighlight() {
+    public func hideHighlight() {
         moveHighlight(rect: NSRect.zero)
     }
 }
