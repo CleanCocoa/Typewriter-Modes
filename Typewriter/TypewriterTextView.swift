@@ -87,6 +87,15 @@ class TypewriterTextView: NSTextView {
         self.textContainerInset = typewriterMode.configuration.textContainerInset
     }
 
+    override var textContainerInset: NSSize {
+        didSet {
+            // Scroll so much that the text does not jump in the view when
+            // adding/removing the top inset.
+            let delta = oldValue.height - textContainerInset.height
+            typewriterScroll(by: -delta)
+        }
+    }
+
     /// Sends an "edited" message to the layout manager to make it adjust the size
     /// to fit the `textContainerInset`. Without doing this, it'll take until after
     /// the next edit by the user.
