@@ -100,7 +100,13 @@ public class TypewriterTextView: NSTextView {
     /// to fit the `textContainerInset`. Without doing this, it'll take until after
     /// the next edit by the user.
     private func forceLayoutWithNewInsets() {
-        self.textStorage?.edited(.editedAttributes, range: selectedRange(), changeInLength: 0)
+        guard let textStorage = self.textStorage else { return }
+        self.layoutManager?.processEditing(
+            for: textStorage,
+            edited: .editedAttributes,
+            range: selectedRange(),
+            changeInLength: 0,
+            invalidatedRange: NSRange())
     }
 
     internal var lineHeight: CGFloat {
