@@ -4,7 +4,7 @@ import AppKit
 
 class CustomTextStorageBase: NSTextStorage {
 
-    internal let content = NSMutableAttributedString()
+    internal let content = NSTextStorage()
 
     public override var string: String { return content.string }
 
