@@ -52,6 +52,12 @@ I explain the parts in blog posts instead of making the readme even longer:
 * [Overscrolling](http://cleancocoa.com/posts/2017/07/typewriter-mode-overscrolling/)
 
 
+## Contributing
+
+There's still work to do to make all typewriter modes a pleasant experience. I'd love to see you involved! 
+
+For technical details, have a look at the [Contributing Guide](/CONTRIBUTING.md).
+
 ## License
 
 Copyright (c) 2017 Christian Tietze. Distributed under the MIT License.

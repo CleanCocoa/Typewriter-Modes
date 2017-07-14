@@ -21,6 +21,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		507C47FC1F189D13009D43E3 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		507C47FD1F189D13009D43E3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		507C48001F189F38009D43E3 /* CONTRIBUTING.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CONTRIBUTING.md; sourceTree = "<group>"; };
 		5086C1BE1F15FAEA007A2D75 /* TypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypewriterMode.swift; sourceTree = "<group>"; };
 		5086C1C01F15FB05007A2D75 /* BottomOverscrollFlexibleTypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomOverscrollFlexibleTypewriterMode.swift; sourceTree = "<group>"; };
 		5086C1C21F15FBC0007A2D75 /* FullOverscrollFlexibleTypewriterMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullOverscrollFlexibleTypewriterMode.swift; sourceTree = "<group>"; };
@@ -50,6 +53,9 @@
 		50CBA4731F0A35760092E8ED = {
 			isa = PBXGroup;
 			children = (
+				507C47FD1F189D13009D43E3 /* README.md */,
+				507C48001F189F38009D43E3 /* CONTRIBUTING.md */,
+				507C47FC1F189D13009D43E3 /* LICENSE */,
 				50CBA47E1F0A35760092E8ED /* Typewriter */,
 				50CBA47D1F0A35760092E8ED /* Products */,
 			);
